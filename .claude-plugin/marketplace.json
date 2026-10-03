@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "the-software-co",
+  "description": "Skills de The Software Co para Claude Code",
+  "owner": {
+    "name": "The Software Co"
+  },
+  "plugins": [
+    {
+      "name": "conocimiento",
+      "description": "Estructura conocimiento en notas atómicas enlazadas (Obsidian o docs de un repo): método, plantillas, prosa y chequeos de frescura.",
+      "source": "./plugins/conocimiento",
+      "category": "productivity"
+    }
+  ]
+}
