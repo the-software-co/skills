@@ -211,7 +211,8 @@ Cuando la base son los docs de un repo con código, el método es el mismo, con 
 
 - **La estructura que ya tiene el repo manda.** Si hay ADRs, una `decision` es un ADR en su
   carpeta y con su numeración; un ADR existente solo suma el frontmatter mínimo (`tipo`,
-  `resumen`, `estado`, `estabilidad`, `dueno`). Si hay un glosario del dominio (`CONTEXT.md` o
+  `resumen`, `estado`, `estabilidad`, `dueno`) y conserva su forma: su primera línea no tiene que
+  repetir el `resumen`. Si hay un glosario del dominio (`CONTEXT.md` o
   similar), los términos se definen ahí y las notas lo enlazan.
 - **Puertas y base.** El README de la raíz enruta a quien llega; el Mapa raíz es
   `docs/indice.md`, y el README lo enlaza. Los archivos fuera de `docs/` (README, glosario,

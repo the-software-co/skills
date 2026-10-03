@@ -162,7 +162,7 @@ def revisar(raiz: pathlib.Path, hoy: dt.date, desde: str | None = None) -> list[
         if d.get("estado") == "borrador" and d.get("revisado"):
             hallar("aviso", "borrador-revisado", rel, "un borrador no tiene `revisado`: se pone al pasar a vigente")
         primera = _primera_linea(n["cuerpo"])
-        if d.get("resumen") and _normal(primera) != _normal(d["resumen"]):
+        if d.get("resumen") and d.get("tipo") != "decision" and _normal(primera) != _normal(d["resumen"]):
             hallar("aviso", "resumen-distinto", rel, "la primera línea no es igual a `resumen`")
         texto = n["cuerpo"].lower()
         halladas = sorted({m for m in MULETILLAS if re.search(rf"\b{re.escape(m)}\b", texto)})
