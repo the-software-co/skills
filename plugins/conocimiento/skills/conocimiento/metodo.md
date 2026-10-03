@@ -210,21 +210,34 @@ repo, junto a lo que lo usa. Los secretos van a un gestor de contraseñas, nunca
 Cuando la base son los docs de un repo con código, el método es el mismo, con estas reglas más.
 
 - **La estructura que ya tiene el repo manda.** Si hay ADRs, una `decision` es un ADR en su
-  carpeta y con su numeración. Si hay un glosario del dominio (`CONTEXT.md` o similar), los
-  términos se definen ahí y las notas lo enlazan. Si el README ya es la puerta de entrada, el Mapa
-  raíz es el README. Todo esto se escribe en el `CONVENCIONES.md` de la base.
+  carpeta y con su numeración; un ADR existente solo suma el frontmatter mínimo (`tipo`,
+  `resumen`, `estado`, `estabilidad`, `dueno`). Si hay un glosario del dominio (`CONTEXT.md` o
+  similar), los términos se definen ahí y las notas lo enlazan.
+- **Puertas y base.** El README de la raíz enruta a quien llega; el Mapa raíz es
+  `docs/indice.md`, y el README lo enlaza. Los archivos fuera de `docs/` (README, glosario,
+  README de subcarpetas) son puertas: no llevan frontmatter y enlazan a la base.
+- **`CONVENCIONES.md` en la base** (`docs/CONVENCIONES.md`) dice lo propio del repo: dueños,
+  carpetas, qué no es nota y los títulos que un test del repo parsea. Su bloque
+  ```` ```yaml revisar ```` lo lee `revisar.py`: `ignorar: [carpetas]` y `palabras_max: N`. El Mapa de
+  una carpeta especial (p. ej. `adr/`) es cualquier nota `tipo: mapa` en ella.
+- **El tamaño es otro.** Un doc de sistema responde una pregunta grande ("¿cómo funciona?",
+  "¿qué herramientas hay?"); se parte por pregunta, no por palabras. `palabras_max` lo ajusta.
 - **El código es la fuente primaria.** `fuentes` cita rutas relativas a la raíz del repo
-  (`src/pagos/cobro.py`, con `:línea` o el nombre de la función si ayuda). Una nota explica lo que
-  el código no dice solo: qué problema resuelve, cómo se relacionan las partes, por qué es así.
-- **Lo que sale del código no se escribe a mano.** Listas de endpoints, flags, campos o tablas se
-  generan desde el código o se enlazan. Si se escriben, un test del repo verifica que coincidan
-  con el código.
-- **Frescura por cambio, no solo por calendario.** `revisar.py` avisa `fuente-cambiada` cuando
-  un archivo citado en `fuentes` tuvo commits después del `revisado` de la nota.
-- **La doc cambia en el mismo PR que el código.** Un PR que invalida una nota la actualiza, y
-  `revisar.py` corre en CI sobre `docs/`.
+  (`src/pagos/cobro.py`, con `:línea` o el nombre de la función si ayuda), y solo los archivos
+  cuyo cambio obliga a releer la nota: uno a tres. Una nota explica lo que el código no dice solo:
+  qué problema resuelve, cómo se relacionan las partes, por qué es así.
+- **Lo que sale del código se verifica con un test.** Listas de endpoints, flags, campos,
+  variables de entorno o subcomandos, y valores que el lector necesita ver ("vence a los 15
+  minutos"): se escriben en el doc y un test del repo verifica que coincidan con el código, o se
+  generan.
+- **Enlaces, no rutas.** Un doc que nombra a otro lo enlaza (`[referencia](referencia.md)`), no
+  lo escribe entre backticks, para que `revisar.py` lo chequee.
+- **El estado de una tarea va a su issue.** Lo pendiente o lo hecho con fecha no vive en un doc.
+- **La doc cambia en el mismo PR que el código.** En CI corre `revisar.py docs --desde
+  origin/main`: avisa `doc-sin-actualizar` cuando cambió una fuente y la nota no. `revisar.py`
+  también avisa `fuente-cambiada` cuando un archivo citado tuvo commits después del `revisado`.
 - **Los agentes la encuentran.** El `CLAUDE.md` o `AGENTS.md` del repo tiene una línea que
-  apunta al Mapa raíz.
+  apunta a `docs/indice.md`.
 
 ## Fuentes
 

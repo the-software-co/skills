@@ -1,7 +1,7 @@
 {
   "name": "conocimiento",
   "description": "Estructura conocimiento en notas atómicas enlazadas (Obsidian o docs de un repo): método, plantillas, prosa y chequeos de frescura.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "The Software Co"
   },

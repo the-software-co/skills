@@ -94,3 +94,37 @@ def test_fuente_cambiada_despues_de_revisado(tmp_path):
     git("add", "-A")
     git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "x")  # hoy, después de `revisado`
     assert ("fuente-cambiada", "cobro.md") in reglas(docs)
+
+
+def test_convenciones_ignora_carpetas_y_fija_palabras(tmp_path):
+    tema = vault(tmp_path, {"datos.md": nota("mapa", "M.", cuerpo="# D\n\nM.\n\n[[larga]] `larga.md`\n"),
+                            "larga.md": nota(cuerpo="# L\n\nUna cohorte es un grupo.\n\n" + "palabra " * 600)})
+    (tema / "agents").mkdir()
+    (tema / "agents" / "x.md").write_text("sin frontmatter")
+    assert ("formato-anterior", "agents/x.md") in reglas(tema)
+    assert ("candidata-a-partir", "larga.md") in reglas(tema)
+    assert ("ruta-sin-enlace", "datos.md") in reglas(tema)
+    (tema / "CONVENCIONES.md").write_text("```yaml revisar\nignorar: [agents]\npalabras_max: 2000\n```\n")
+    r = reglas(tema)
+    assert ("formato-anterior", "agents/x.md") not in r
+    assert ("candidata-a-partir", "larga.md") not in r
+
+
+def test_desde_avisa_la_doc_que_no_acompano_al_codigo(tmp_path):
+    import subprocess
+    git = lambda *a: subprocess.run(["git", "-C", str(tmp_path), "-c", "user.name=t", "-c", "user.email=t@t", *a],
+                                    check=True, capture_output=True)
+    git("init", "-q", "-b", "main")
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "cobro.py").write_text("x = 1\n")
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "indice.md").write_text(nota("mapa", "M.", cuerpo="# Índice\n\nM.\n\n[cobro](cobro.md)\n"))
+    (docs / "cobro.md").write_text(nota(extra="fuentes: [src/cobro.py]\n").replace("2026-09-01", "2099-01-01"))
+    git("add", "-A")
+    git("commit", "-q", "-m", "base")
+    git("switch", "-q", "-c", "pr")
+    (tmp_path / "src" / "cobro.py").write_text("x = 2\n")
+    git("commit", "-qam", "cambio")
+    r = {(h["regla"], h["nota"]) for h in revisar.revisar(docs, HOY, desde="main")}
+    assert ("doc-sin-actualizar", "cobro.md") in r

@@ -107,11 +107,11 @@ Para un concepto suelto, una nota cruda o algo aprendido que la persona quiere g
    definición, una fórmula o un umbral que no coinciden).
 3. Agrupá los hallazgos y, para cada uno, proponé el arreglo:
    - `enlace-roto`, `relacion-rota`: el destino correcto o sacar el enlace;
-   - `revision-vencida`, `fuente-cambiada`: releer la nota contra sus `fuentes` (el diff del
+   - `revision-vencida`, `fuente-cambiada`, `doc-sin-actualizar`: releer la nota contra sus `fuentes` (el diff del
      archivo desde `revisado`, si es código) y decir qué cambió, o confirmar que sigue bien;
    - `huerfana`, `mapa-sin-padre`, `tema-sin-mapa`: en qué Mapa va;
    - `candidata-a-partir`, `formato-anterior`: pasarla por `existente`;
-   - `muletilla`, `resumen-distinto`, `nombre-de-archivo`, `relacionado-asimetrico`,
+   - `muletilla`, `resumen-distinto`, `nombre-de-archivo`, `relacionado-asimetrico`, `ruta-sin-enlace`,
      `borrador-revisado`: el arreglo puntual;
    - `pendiente-de-revision`: recordarle a la persona qué borradores esperan su lectura;
    - `obsoleto-sin-reemplazo`: borrarla si nada la enlaza;

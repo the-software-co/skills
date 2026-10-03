@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Chequeos deterministas del Conocimiento de una carpeta (ver `metodo.md`). Solo stdlib.
 
-    python3 revisar.py <carpeta> [--hoy AAAA-MM-DD] [--json]
+    python3 revisar.py <carpeta> [--hoy AAAA-MM-DD] [--desde REF] [--json]
+
+`--desde` (p. ej. `origin/main`, en CI) avisa de las notas cuyas `fuentes` cambiaron en el diff y
+que la nota misma no acompañó. Un `CONVENCIONES.md` en la carpeta puede traer un bloque
+```yaml revisar``` con `ignorar: [subcarpeta, …]` y `palabras_max: N`.
 
 Sale con 1 si hay errores; los avisos no cambian la salida.
 """
@@ -81,14 +85,28 @@ def _lista(v) -> list[str]:
     return v if isinstance(v, list) else [v]
 
 
-def revisar(raiz: pathlib.Path, hoy: dt.date) -> list[dict]:
+def configuracion(raiz: pathlib.Path) -> dict:
+    """El bloque ```yaml revisar``` del `CONVENCIONES.md` de la base, si hay."""
+    conv = raiz / "CONVENCIONES.md"
+    m = re.search(r"```yaml revisar\n(.*?)```", conv.read_text(), re.S) if conv.exists() else None
+    if not m:
+        return {}
+    datos, _ = frontmatter("---\n" + m.group(1) + "---\n")
+    return datos or {}
+
+
+def revisar(raiz: pathlib.Path, hoy: dt.date, desde: str | None = None) -> list[dict]:
     hallazgos: list[dict] = []
+    conf = configuracion(raiz)
+    ignorar = [raiz / x for x in _lista(conf.get("ignorar"))]
+    palabras_max = int(conf.get("palabras_max") or PALABRAS_MAX)
 
     def hallar(nivel: str, regla: str, ruta, mensaje: str) -> None:
         hallazgos.append({"nivel": nivel, "regla": regla, "nota": str(ruta), "mensaje": mensaje})
 
     archivos = sorted(p for p in raiz.rglob("*.md")
-                      if not any(x.startswith(".") for x in p.relative_to(raiz).parts) and p.name not in NO_NOTAS)
+                      if not any(x.startswith(".") for x in p.relative_to(raiz).parts) and p.name not in NO_NOTAS
+                      and not any(i == p or i in p.parents for i in ignorar))
     notas: dict[str, dict] = {}
     for p in archivos:
         rel = p.relative_to(raiz)
@@ -122,11 +140,14 @@ def revisar(raiz: pathlib.Path, hoy: dt.date) -> list[dict]:
                 hallar("error", "enlace-roto", rel, f"no existe {destino}")
             enlaces.add(pathlib.Path(destino).stem)
         n["enlaces"] = enlaces
+        for ruta in sorted(set(re.findall(r"`([\w./-]+\.md)`", n["cuerpo"]))):
+            if any(c.exists() for c in (n["path"].parent / ruta, raiz / ruta)):
+                hallar("aviso", "ruta-sin-enlace", rel, f"`{ruta}` es una nota: va como enlace para que se chequee")
 
         sin_codigo = re.sub(r"```.*?```", "", n["cuerpo"], flags=re.S)
         palabras = len([w for w in sin_codigo.split() if re.search(r"\w", w)])
         instrumento = (d or {}).get("tipo") == "ficha" and (d or {}).get("estabilidad") == "estable"
-        if (d or {}).get("tipo") not in MAPAS and not instrumento and palabras > PALABRAS_MAX:
+        if (d or {}).get("tipo") not in MAPAS and not instrumento and palabras > palabras_max:
             hallar("aviso", "candidata-a-partir", rel, f"{palabras} palabras: ¿responde una sola pregunta?")
         if d is None or d.get("tipo") not in TIPOS and not d.get("resumen"):
             hallar("aviso", "formato-anterior", rel, "no sigue el método todavía (modo `existente`)")
@@ -134,7 +155,7 @@ def revisar(raiz: pathlib.Path, hoy: dt.date) -> list[dict]:
             continue
         if not NOMBRE.fullmatch(id_):
             hallar("aviso", "nombre-de-archivo", rel, "el nombre va en kebab-case con letras ASCII")
-        if d.get("estado") == "vigente" and not d.get("revisado"):
+        if d.get("estado") == "vigente" and d.get("tipo") != "decision" and not d.get("revisado"):
             hallar("error", "campo-faltante", rel, "falta `revisado` (obligatorio si está vigente)")
         if d.get("estado") == "borrador":
             hallar("aviso", "pendiente-de-revision", rel, "borrador: espera que una persona lo lea y lo confirme")
@@ -187,6 +208,18 @@ def revisar(raiz: pathlib.Path, hoy: dt.date) -> list[dict]:
             if cambio and cambio > str(d["revisado"]):
                 hallar("aviso", "fuente-cambiada", n["ruta"], f"`{fuente}` cambió el {cambio}, después de `revisado`")
 
+    if desde:
+        cambiados = _cambiados(raiz, desde)
+        top = _top(raiz)
+        for i, n in notas.items():
+            d = n["datos"] or {}
+            propia = str(n["path"].resolve().relative_to(top)) if top else None
+            if d.get("estado") != "vigente" or propia in cambiados:
+                continue
+            tocadas = [f for f in _lista(d.get("fuentes")) if re.split(r"[:#]", f, maxsplit=1)[0] in cambiados]
+            if tocadas:
+                hallar("aviso", "doc-sin-actualizar", n["ruta"], f"cambió {', '.join(tocadas)} y la nota no: ¿sigue bien?")
+
     padres = {i: [p for p in _lista((n["datos"] or {}).get("parte_de")) if p in notas] for i, n in notas.items()}
 
     def ancestros(i: str) -> set[str]:
@@ -215,6 +248,21 @@ def revisar(raiz: pathlib.Path, hoy: dt.date) -> list[dict]:
     for carpeta in sorted({n["path"].parent for n in notas.values() if n["datos"]} - con_mapa):
         hallar("aviso", "tema-sin-mapa", carpeta.relative_to(raiz) if carpeta != raiz else ".", "la carpeta no tiene Mapa")
     return hallazgos
+
+
+def _top(raiz: pathlib.Path) -> pathlib.Path | None:
+    try:
+        return pathlib.Path(subprocess.run(["git", "-C", str(raiz), "rev-parse", "--show-toplevel"],
+                                           capture_output=True, text=True, check=True).stdout.strip())
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def _cambiados(raiz: pathlib.Path, desde: str) -> set[str]:
+    """Los archivos que cambiaron desde la base común con `desde`, relativos a la raíz del repo."""
+    r = subprocess.run(["git", "-C", str(raiz), "diff", "--name-only", f"{desde}...HEAD"],
+                       capture_output=True, text=True)
+    return set(r.stdout.split())
 
 
 def _ultimo_commit(raiz: pathlib.Path, fuente: str) -> str | None:
@@ -248,9 +296,10 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("carpeta", type=pathlib.Path)
     ap.add_argument("--hoy", type=dt.date.fromisoformat, default=dt.date.today())
+    ap.add_argument("--desde", help="ref de git contra la que se mira el diff (p. ej. origin/main)")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
-    hallazgos = revisar(a.carpeta, a.hoy)
+    hallazgos = revisar(a.carpeta, a.hoy, a.desde)
     if a.json:
         print(json.dumps(hallazgos, ensure_ascii=False, indent=2))
     else:
