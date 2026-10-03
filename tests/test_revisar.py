@@ -79,3 +79,18 @@ def test_revision_vencida_segun_estabilidad(tmp_path):
     tema = vault(tmp_path, {"datos.md": nota("mapa", "M.", cuerpo="# D\n\n[[vieja]]\n"),
                             "vieja.md": nota().replace("2026-09-01", "2025-01-01")})
     assert ("revision-vencida", "vieja.md") in reglas(tema)
+
+
+def test_fuente_cambiada_despues_de_revisado(tmp_path):
+    import subprocess
+    git = lambda *a: subprocess.run(["git", "-C", str(tmp_path), *a], check=True, capture_output=True)
+    git("init", "-q")
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "cobro.py").write_text("x = 1\n")
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "indice.md").write_text(nota("mapa", "M.", cuerpo="# Índice\n\nM.\n\n[cobro](cobro.md)\n"))
+    (docs / "cobro.md").write_text(nota(extra="fuentes: [src/cobro.py:1]\n"))
+    git("add", "-A")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "x")  # hoy, después de `revisado`
+    assert ("fuente-cambiada", "cobro.md") in reglas(docs)

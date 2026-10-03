@@ -10,6 +10,7 @@ import datetime as dt
 import json
 import pathlib
 import re
+import subprocess
 import sys
 
 TIPOS = {"concepto", "metrica", "como-hacer", "ficha", "decision", "mapa", "recorrido"}
@@ -177,6 +178,15 @@ def revisar(raiz: pathlib.Path, hoy: dt.date) -> list[dict]:
         if d.get("tipo") == "mapa" and not _lista(d.get("parte_de")) and id_ not in MAPAS_RAIZ:
             hallar("aviso", "mapa-sin-padre", rel, "ningún Mapa padre: no se llega desde el Mapa raíz")
 
+    for i, n in notas.items():
+        d = n["datos"] or {}
+        if d.get("estado") != "vigente" or not d.get("revisado"):
+            continue
+        for fuente in _lista(d.get("fuentes")):
+            cambio = _ultimo_commit(raiz, fuente)
+            if cambio and cambio > str(d["revisado"]):
+                hallar("aviso", "fuente-cambiada", n["ruta"], f"`{fuente}` cambió el {cambio}, después de `revisado`")
+
     padres = {i: [p for p in _lista((n["datos"] or {}).get("parte_de")) if p in notas] for i, n in notas.items()}
 
     def ancestros(i: str) -> set[str]:
@@ -205,6 +215,23 @@ def revisar(raiz: pathlib.Path, hoy: dt.date) -> list[dict]:
     for carpeta in sorted({n["path"].parent for n in notas.values() if n["datos"]} - con_mapa):
         hallar("aviso", "tema-sin-mapa", carpeta.relative_to(raiz) if carpeta != raiz else ".", "la carpeta no tiene Mapa")
     return hallazgos
+
+
+def _ultimo_commit(raiz: pathlib.Path, fuente: str) -> str | None:
+    """La fecha (AAAA-MM-DD) del último commit que tocó una fuente que es un archivo del repo."""
+    if "://" in fuente:
+        return None
+    ruta = re.split(r"[:#]", fuente.strip(), maxsplit=1)[0]
+    try:
+        top = subprocess.run(["git", "-C", str(raiz), "rev-parse", "--show-toplevel"],
+                             capture_output=True, text=True, check=True).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    if not ruta or not (pathlib.Path(top) / ruta).exists():
+        return None
+    fecha = subprocess.run(["git", "-C", top, "log", "-1", "--format=%cs", "--", ruta],
+                           capture_output=True, text=True).stdout.strip()
+    return fecha or None
 
 
 def _primera_linea(cuerpo: str) -> str:

@@ -205,6 +205,27 @@ reemplazado_por:          # ID: solo si estado es obsoleto
 `ambos` se lee igual en GitHub y en Obsidian. Lo que documenta un sistema va a los docs de su
 repo, junto a lo que lo usa. Los secretos van a un gestor de contraseñas, nunca a una nota.
 
+## Documentar un sistema
+
+Cuando la base son los docs de un repo con código, el método es el mismo, con estas reglas más.
+
+- **La estructura que ya tiene el repo manda.** Si hay ADRs, una `decision` es un ADR en su
+  carpeta y con su numeración. Si hay un glosario del dominio (`CONTEXT.md` o similar), los
+  términos se definen ahí y las notas lo enlazan. Si el README ya es la puerta de entrada, el Mapa
+  raíz es el README. Todo esto se escribe en el `CONVENCIONES.md` de la base.
+- **El código es la fuente primaria.** `fuentes` cita rutas relativas a la raíz del repo
+  (`src/pagos/cobro.py`, con `:línea` o el nombre de la función si ayuda). Una nota explica lo que
+  el código no dice solo: qué problema resuelve, cómo se relacionan las partes, por qué es así.
+- **Lo que sale del código no se escribe a mano.** Listas de endpoints, flags, campos o tablas se
+  generan desde el código o se enlazan. Si se escriben, un test del repo verifica que coincidan
+  con el código.
+- **Frescura por cambio, no solo por calendario.** `revisar.py` avisa `fuente-cambiada` cuando
+  un archivo citado en `fuentes` tuvo commits después del `revisado` de la nota.
+- **La doc cambia en el mismo PR que el código.** Un PR que invalida una nota la actualiza, y
+  `revisar.py` corre en CI sobre `docs/`.
+- **Los agentes la encuentran.** El `CLAUDE.md` o `AGENTS.md` del repo tiene una línea que
+  apunta al Mapa raíz.
+
 ## Fuentes
 
 - Estructura: *Every Page is Page One* (Mark Baker), DITA (descripción corta), Information Mapping (definición, ejemplo, contraejemplo), Diátaxis (como chequeo), SKOS (relaciones), evergreen notes de Andy Matuschak y Maps of Content.

@@ -27,7 +27,8 @@ Elegí el modo por lo que pide la persona:
    Dice lo propio de esa base: los dueños posibles, carpetas especiales y dónde se registra lo
    que se vuelca. Lo que diga ahí manda sobre los ejemplos de `metodo.md`.
 3. **Destino**: si hay un `.obsidian/` en la carpeta o arriba, `obsidian`; si no, `ambos`. La
-   persona puede pedir el otro.
+   persona puede pedir el otro. Si la base son los docs de un repo con código, seguí también
+   "Documentar un sistema" de `metodo.md`.
 4. **Idioma**: el que pida la persona; si no dice, el de las notas del Tema.
 5. **Buscar** el término, sus sinónimos y su traducción en toda la base (grep, o la herramienta
    de búsqueda del vault si la hay). Lo que ya existe se amplía o se enlaza.
@@ -39,8 +40,9 @@ los Mapas donde van a entrar.
 
 ## Investigar
 
-Cuando falta material, investigá en fuentes primarias: documentación oficial, papers, libros y
-textos de referencia. Despachá un subagente por subtema, que devuelva afirmaciones con su URL,
+Cuando falta material, investigá en fuentes primarias: en un sistema, su código (explorado con
+subagentes, citado por ruta); si no, documentación oficial, papers, libros y textos de
+referencia. Despachá un subagente por subtema, que devuelva afirmaciones con su URL,
 y verificá vos cada URL antes de ponerla en `fuentes`. Lo que dice una sola fuente secundaria se
 atribuye en el texto; lo que es inferencia propia se dice como inferencia.
 
@@ -105,8 +107,8 @@ Para un concepto suelto, una nota cruda o algo aprendido que la persona quiere g
    definición, una fórmula o un umbral que no coinciden).
 3. Agrupá los hallazgos y, para cada uno, proponé el arreglo:
    - `enlace-roto`, `relacion-rota`: el destino correcto o sacar el enlace;
-   - `revision-vencida`: releer la nota contra sus `fuentes` y decir qué cambió, o confirmar que
-     sigue bien;
+   - `revision-vencida`, `fuente-cambiada`: releer la nota contra sus `fuentes` (el diff del
+     archivo desde `revisado`, si es código) y decir qué cambió, o confirmar que sigue bien;
    - `huerfana`, `mapa-sin-padre`, `tema-sin-mapa`: en qué Mapa va;
    - `candidata-a-partir`, `formato-anterior`: pasarla por `existente`;
    - `muletilla`, `resumen-distinto`, `nombre-de-archivo`, `relacionado-asimetrico`,
