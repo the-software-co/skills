@@ -128,3 +128,12 @@ def test_desde_avisa_la_doc_que_no_acompano_al_codigo(tmp_path):
     git("commit", "-qam", "cambio")
     r = {(h["regla"], h["nota"]) for h in revisar.revisar(docs, HOY, desde="main")}
     assert ("doc-sin-actualizar", "cobro.md") in r
+
+
+def test_desde_con_un_ref_que_no_existe_falla(tmp_path):
+    import subprocess
+    import pytest
+    subprocess.run(["git", "-C", str(tmp_path), "init", "-q"], check=True)
+    tema = vault(tmp_path, {"datos.md": nota("mapa", "M.", cuerpo="# D\n\nM.\n")})
+    with pytest.raises(SystemExit):
+        revisar.revisar(tema, HOY, desde="refs/no-existe")

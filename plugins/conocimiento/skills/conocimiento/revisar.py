@@ -262,6 +262,8 @@ def _cambiados(raiz: pathlib.Path, desde: str) -> set[str]:
     """Los archivos que cambiaron desde la base común con `desde`, relativos a la raíz del repo."""
     r = subprocess.run(["git", "-C", str(raiz), "diff", "--name-only", f"{desde}...HEAD"],
                        capture_output=True, text=True)
+    if r.returncode != 0:
+        raise SystemExit(f"revisar.py: --desde {desde}: {r.stderr.strip() or 'git diff falló'}")
     return set(r.stdout.split())
 
 
