@@ -46,6 +46,40 @@ referencia. Despachá un subagente por subtema, que devuelva afirmaciones con su
 y verificá vos cada URL antes de ponerla en `fuentes`. Lo que dice una sola fuente secundaria se
 atribuye en el texto; lo que es inferencia propia se dice como inferencia.
 
+## Verificar
+
+Tres pruebas, en este orden. Cada una atrapa algo que las otras no ven.
+
+1. **`revisar.py`**: `python3 revisar.py <carpeta del Tema>` (está al lado de este archivo) sin
+   errores. Atrapa la forma: frontmatter, enlaces, huérfanas y tamaño.
+2. **Prueba de fuentes**: toda afirmación sobre lo que hace un sistema, un dato, un valor o un
+   porqué se coteja contra la fuente que la nota cita, sea el código, la issue o el API. Para eso,
+   un subagente por nota (o por grupo de notas que comparten fuentes) recibe la nota y sus
+   `fuentes`, y devuelve cada afirmación que la fuente no sostiene o contradice.
+   - El material que llega de otro doc (un README, una nota vieja, un chat) se coteja igual, porque
+     puede estar desactualizado.
+   - Si ninguna fuente registra el porqué de una decisión, no se deduce: la nota dice que no quedó
+     registrado, y la persona lo confirma en la entrega.
+3. **Prueba del lector en frío** (Prosa, regla 14 de `metodo.md`): atrapa lo que la nota da por
+   sabido.
+   - **Preguntas**: quien escribe redacta, por nota, la pregunta del título y dos o tres preguntas
+     que haría un lector, y sabe sus respuestas correctas por las fuentes.
+   - **Lector**: un subagente por nota, todos en paralelo, recibe solo la ruta de la nota y las
+     preguntas, con la indicación de no abrir otros archivos. Devuelve sus respuestas y los huecos:
+     lo que le impidió responder con seguridad. El lector no decide si aprobó, porque no conoce las
+     respuestas correctas.
+   - **Juicio**: quien escribe compara cada respuesta con las fuentes. La nota aprueba si todas son
+     correctas. Un término que la nota enlaza, o que define el glosario de la base según
+     `CONVENCIONES.md`, no es un hueco.
+   - **Arreglo**: se reescriben las respuestas incorrectas y los huecos que impidieron responder.
+     Una contradicción interna que el lector señala se cruza con la prueba de fuentes: suele ser un
+     error de hecho. Después, el lector vuelve a pasar solo por las notas que no aprobaron.
+   - Mapas y Recorridos no pasan esta prueba: son listas. Su control es que cada línea diga qué
+     responde la nota y cuándo leerla.
+
+Para las dos pruebas con subagentes alcanza con lanzarlos de a varios en paralelo. Un orquestador
+de muchos agentes (un workflow) se usa solo si la persona lo pidió.
+
 ## `nuevo`
 
 1. **Material**: el que trajo la persona; lo que falte, investigalo.
@@ -59,12 +93,10 @@ atribuye en el texto; lo que es inferencia propia se dice como inferencia.
 3. **Escribir**: una nota por archivo, desde su plantilla, siguiendo la Prosa de `metodo.md`, con
    `estado: borrador`, `creado` de hoy y `autoria: ia`. Después, el Mapa, el Recorrido y el enlace
    desde el Mapa padre.
-4. **Verificar**:
-   - `python3 revisar.py <carpeta del Tema>` (está al lado de este archivo) sin errores;
-   - la prueba del lector en frío de `metodo.md` aprobada en cada nota, con un subagente por nota
-     que solo ve esa nota.
-5. **Entregar**: decile a la persona qué notas quedaron en `borrador` para que las lea. Las que
-   confirme pasan a `vigente` con `revisado` de ese día.
+4. **Verificar**: las tres pruebas de [Verificar](#verificar), en orden.
+5. **Entregar**: decile a la persona qué notas quedaron en `borrador` para que las lea, y qué
+   afirmaciones esperan su confirmación (porqués no registrados, datos que no se pudieron
+   cotejar). Las que confirme pasan a `vigente` con `revisado` de ese día.
 
 ## `existente`
 
@@ -83,7 +115,7 @@ atribuye en el texto; lo que es inferencia propia se dice como inferencia.
 3. **Reestructurar**: escribí las notas nuevas como en `nuevo`, mové el contenido (se borra del
    origen), actualizá los enlaces que apuntaban a las notas viejas en toda la base y borrá las que
    quedaron vacías. Los originales que se traducen o se reemplazan enteros van a `Archivo/`.
-4. **Verificar** como en `nuevo` y contale a la persona cuántas notas había, cuántas quedaron y
+4. **Verificar** como dice [Verificar](#verificar) y contale a la persona cuántas notas había, cuántas quedaron y
    qué se borró.
 
 ## `volcar`
@@ -96,7 +128,8 @@ Para un concepto suelto, una nota cruda o algo aprendido que la persona quiere g
    - **partir** una nota, si al sumarle esto respondería dos preguntas;
    - **solo enlazar**, si ya está explicado.
 2. **Proponer**: decile a la persona qué decidiste, en qué Tema y con qué relaciones. Esperá el sí.
-3. **Escribir** desde la plantilla, enlazar desde el Mapa del Tema y verificar como en `nuevo`.
+3. **Escribir** desde la plantilla, enlazar desde el Mapa del Tema y verificar como dice
+   [Verificar](#verificar).
 4. **Cerrar el ciclo**: devolvé la ruta de la nota, y registrala donde diga `CONVENCIONES.md` si
    dice algo.
 

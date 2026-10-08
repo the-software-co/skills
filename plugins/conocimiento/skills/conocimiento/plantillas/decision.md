@@ -17,6 +17,7 @@ relacionado: []
 
 <El contexto: qué problema había y qué restricciones pesaban.>
 
-<Lo que se decidió y por qué.>
+<Lo que se decidió y por qué. Si ninguna fuente registra el porqué, se dice así ("el porqué no
+quedó registrado") y se pide a quien decidió; no se deduce.>
 
-<Lo que se descartó y por qué.>
+<Lo que se descartó y por qué, con la misma regla.>

@@ -70,8 +70,11 @@ Cada regla sale de una guía de estilo; ver Fuentes.
     voseo en los pasos de `como-hacer` ("filtrá", "agrupá"). En inglés, impersonal y "you" en los
     pasos.
 14. **Prueba del lector en frío**: antes de dar una nota por terminada, un subagente que recibe
-    solo esa nota responde la pregunta de su título y dos o tres preguntas que un lector haría. Si
-    falla, se reescribe hasta que acierte (Anthropic, `doc-coauthoring`).
+    solo esa nota responde la pregunta de su título y dos o tres preguntas que un lector haría.
+    Quien escribe la nota compara las respuestas con las fuentes; si alguna falla, se reescribe
+    hasta que acierte (Anthropic, `doc-coauthoring`). La prueba no ve errores de hecho: una nota
+    puede ser clara y estar equivocada. Por eso va después de cotejar la nota con sus fuentes
+    (`SKILL.md`, Verificar).
 
 ## Tipos
 
