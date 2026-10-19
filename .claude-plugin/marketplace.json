@@ -1,9 +1,9 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "the-software-co",
-  "description": "Skills de The Software Co para Claude Code",
+  "description": "Skills de The Software Company para Claude Code",
   "owner": {
-    "name": "The Software Co"
+    "name": "The Software Company"
   },
   "plugins": [
     {

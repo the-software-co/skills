@@ -1,4 +1,4 @@
-# Skills de The Software Co
+# Skills de The Software Company
 
 Marketplace de plugins de Claude Code.
 
