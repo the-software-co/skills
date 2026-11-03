@@ -4,6 +4,7 @@ on:
   pull_request: {}
 jobs:
   tests:
+    # solo-saas: el repo es público; un runner propio correría el código de PRs de forks dentro de la red de casa, y un repo público no puede llamar ruta-perfil.yml de home-k8 (privado; acceso de Actions limitado a la org). El job es liviano (~10 s), no es falta de capacidad.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
