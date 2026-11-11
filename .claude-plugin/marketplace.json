@@ -11,6 +11,12 @@
       "description": "Estructura conocimiento en notas atómicas enlazadas (Obsidian o docs de un repo): método, plantillas, prosa y chequeos de frescura.",
       "source": "./plugins/conocimiento",
       "category": "productivity"
+    },
+    {
+      "name": "documentar",
+      "description": "Documenta cualquier tema como una base de conocimiento en Markdown: áreas genéricas, núcleo estable separado de lo volátil, enlaces con tipo, ruta de aprendizaje y lint.",
+      "source": "./plugins/documentar",
+      "category": "productivity"
     }
   ]
 }

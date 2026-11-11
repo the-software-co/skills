@@ -2,6 +2,21 @@
 
 Marketplace de plugins de Claude Code.
 
+## `documentar`
+
+Documenta un tema cualquiera (Excel, Kubernetes, lagartos) como una base de conocimiento en Markdown
+en [`the-software-co/biblioteca`](https://github.com/the-software-co/biblioteca): fija el alcance y las
+preguntas antes de escribir, parte el tema en áreas genéricas, separa el núcleo estable de lo volátil,
+enlaza concepto a concepto con relaciones con tipo y, si es para aprender, arma una ruta de práctica.
+El método está en
+[`metodo.md`](plugins/documentar/skills/documentar/metodo.md) y su porqué en
+[`docs/research/skill-documentar.md`](docs/research/skill-documentar.md).
+
+```
+/plugin install documentar@the-software-co
+python3 plugins/documentar/skills/documentar/revisar.py <carpeta del tema>
+```
+
 ## `conocimiento`
 
 Estructura conocimiento en notas atómicas enlazadas, en un vault de Obsidian o en los docs de un
