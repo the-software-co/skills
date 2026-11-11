@@ -1,0 +1,10 @@
+{
+  "name": "documentar",
+  "description": "Documenta cualquier tema como una base de conocimiento en Markdown: áreas genéricas, núcleo estable separado de lo volátil, enlaces con tipo, ruta de aprendizaje y lint.",
+  "version": "0.1.0",
+  "author": {
+    "name": "The Software Co"
+  },
+  "repository": "https://github.com/the-software-co/skills",
+  "license": "MIT"
+}
