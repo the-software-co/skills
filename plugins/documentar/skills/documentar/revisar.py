@@ -142,7 +142,8 @@ def revisar(raiz: pathlib.Path, hoy: dt.date) -> list[dict]:
         if fm is None:
             h("ERROR", "frontmatter", ruta, "no tiene frontmatter")
             continue
-        nid = ruta.parent.name if ruta.name == "README.md" else ruta.stem
+        # Un Mapa no es destino de relaciones: su id no compite con la nota que se llama como el tema.
+        nid = f"mapa:{ruta.parent.relative_to(raiz)}" if ruta.name == "README.md" else ruta.stem
         if ruta.name != "README.md" and not NOMBRE.fullmatch(ruta.stem):
             h("ERROR", "nombre", ruta, "el nombre no es kebab-case ASCII")
         if nid in notas:

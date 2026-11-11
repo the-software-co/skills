@@ -172,3 +172,9 @@ def test_subtema_con_su_mapa_y_alcance(tmp_path):
                                   extra="responde: [P3, P4]\nparte_de: [lagarto]\n"),
     }))
     assert r == set()
+
+
+def test_una_nota_que_se_llama_como_el_tema_no_choca_con_el_mapa(tmp_path):
+    carpeta = tmp_path / "reptil"
+    tema(carpeta)
+    assert reglas(carpeta) == set()
