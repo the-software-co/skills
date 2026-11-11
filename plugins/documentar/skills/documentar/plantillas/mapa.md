@@ -24,6 +24,10 @@ autoria: ia
 - **Para decidir**: <las notas de decisión>.
 - **Si algo falla**: <las notas de falla>.
 
+## <Pregunta esencial, en forma de título>
+
+<Una sección por pregunta esencial (E1…), respondida en corto y enlazando las notas que la desarrollan.>
+
 ## Conceptos umbral
 
 <Los 3 a 7 conceptos que cambian cómo se ve el tema, con un diagrama Mermaid de cómo se relacionan.>

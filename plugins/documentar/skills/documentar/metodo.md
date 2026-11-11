@@ -92,6 +92,12 @@ reemplazado_por:          # id, solo si estado es obsoleto
 - **Periferia**: `ficha`, `ecosistema` y lo `volatil`. Cada ficha enlaza al concepto que implementa, para que si la herramienta muere el concepto quede.
 - **Puente**: la sección "Para profundizar" de una nota recomienda un recurso, como mucho dos alternativas, y dice qué parte usar, en qué fijarse y en qué difiere de la nota. Un recurso entra si es exacto, se puede usar por partes, es estable (documentación oficial, un libro, un curso abierto mantenido) y, si hay, en el idioma de la base. Lo volátil se enlaza a su fuente viva en vez de copiarlo; si se copia un valor, va con la fecha de la copia.
 
+## Valores, términos y material propio
+
+- **Un valor, un lugar.** Los números de referencia (temperaturas, dosis, tamaños, frecuencias) viven en la ficha de `referencia`, con su fuente y sus desacuerdos. Una nota que necesita un valor lo enlaza o lo repite con la misma cifra y la misma fuente: dos notas no dan valores distintos sin decir por qué.
+- **Jerga en el glosario.** Si el tema tiene términos técnicos, un `glosario` (ficha de `referencia`) los define en una línea y enlaza la nota que los desarrolla; el Mapa lo enlaza.
+- **Material de la persona.** Lo que la persona ya hace o escribió se contrasta con las fuentes en una sección propia al final de la nota ("En <lugar>"), separada del contenido general, para que la nota siga sirviendo a otro lector.
+
 ## Obsoleto y disputado
 
 - **Una afirmación que cambió** no se reescribe en silencio: si importa como historia, queda con un aviso debajo y la nueva al lado:

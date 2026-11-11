@@ -45,7 +45,8 @@ Mostrale a la persona, antes de escribir una sola nota:
 - sus relaciones `es_un`, `parte_de`, `instancia_de` y `requiere`;
 - los conceptos umbral (de 3 a 7);
 - qué notas son puente a un recurso de afuera y cuál es ese recurso;
-- el orden de la ruta, si la intención incluye aprender.
+- el orden de la ruta, si la intención incluye aprender;
+- un `glosario` (ficha de `referencia`) si el tema tiene jerga.
 
 Terminás cuando toda pregunta tiene al menos una nota que la responde, toda área sin notas está justificada como poda, y la persona aprobó.
 
@@ -53,14 +54,16 @@ Terminás cuando toda pregunta tiene al menos una nota que la responde, toda ár
 
 Primero el núcleo (áreas estables: qué es, cómo funciona, anatomía, procesos, historia, cómo falla), después la periferia (cómo se hace, cómo se decide, ecosistema, referencia) y al final la ruta y el Mapa. Cada nota desde su plantilla, con `estado: borrador`, `autoria: ia` y `creado` de hoy. Cada nota nueva entra al Mapa en el mismo cambio.
 
-El Mapa `responde` las preguntas esenciales; las de cobertura, las notas.
+El Mapa `responde` las preguntas esenciales, cada una con su sección; las de cobertura, las notas.
+
+Si escribís con subagentes, cada uno recibe el mapa aprobado entero (ids, relaciones, puentes) y los informes que le tocan. Al juntar, buscá los valores que dos notas dan distinto sin explicarlo.
 
 Terminás cuando existe cada nota del mapa aprobado y el Mapa enlaza a todas.
 
 ### 5. Verificar
 
 1. `python3 revisar.py <carpeta del tema>` (al lado de este archivo) sale con 0. Los avisos se leen y se arreglan o se justifican en el PR.
-2. **Lector en frío**: un subagente que recibe solo la ruta del `README.md` del tema, sin este contexto, responde cada pregunta del `ALCANCE.md` navegando desde el Mapa y **citando el archivo y el párrafo** que la responde. Una respuesta sin cita, o con una cita que no la sostiene, es un hueco: se arregla la nota y se repite con un subagente nuevo.
+2. **Lector en frío**: un subagente que recibe solo la ruta del `README.md` del tema, sin este contexto, responde cada pregunta del `ALCANCE.md` navegando desde el Mapa y **citando el archivo y el párrafo** que la responde. Pedile también una lista de contradicciones entre notas, enlaces que faltan y términos sin definir. Una respuesta sin cita, o con una cita que no la sostiene, es un hueco: se arregla la nota y se repite con un subagente nuevo, enfocado en lo que falló. Una respuesta a medias cuenta como respondida solo si lo que falta es un hueco declarado en la nota.
 3. Pasada de prosa: si la skill `humanizer` está disponible, sobre cada nota; si no, las reglas de "Prosa" de `metodo.md`. Ningún hecho, número, nombre ni fuente se pierde en la pasada.
 
 Terminás cuando el lint da 0, el lector en frío cita una respuesta válida para cada pregunta y la pasada de prosa está hecha.
