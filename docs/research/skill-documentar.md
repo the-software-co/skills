@@ -218,7 +218,7 @@ Lo que este research agrega y `conocimiento` no tiene:
 2. **La profundidad se fija antes de escribir.** El paso de alcance dimensiona el tema. Si es grande, se detecta en ese paso y se parte en sub-temas, y la partición se acuerda con la persona antes de investigar. Nunca se descubre a mitad de la escritura.
 3. **La ruta de aprendizaje entra según la intención** (criterio propio, la pregunta 3 quedó sin respuesta). Si la persona viene a aprender, se escribe el área 11 con los 7 pasos. Si viene a consultar, decidir u operar, el área 11 se reduce a un orden de lectura dentro del Mapa. Se puede pedir después sin rehacer nada.
 4. **Núcleo propio y corto, con puente para profundizar** (a criterio, se pidió decidir). Una base de consulta tiene que poder leerse sola, porque cada página es la primera (Baker). Por eso los conceptos del núcleo llevan su propia definición y su modelo mental, cortos. Donde hay un recurso canónico que pasa los criterios, la nota no lo repite: lo recomienda, dice qué parte leer y en qué fijarse (ADR 0011). Lo volátil nunca se copia si tiene una fuente viva a la que enlazar.
-5. **Las bases viven en un repo "biblioteca"**, con una carpeta por tema.
+5. **Las bases viven en [`the-software-co/biblioteca`](https://github.com/the-software-co/biblioteca)** (privado), con una carpeta por tema.
 
 ## Preguntas para alinear
 
