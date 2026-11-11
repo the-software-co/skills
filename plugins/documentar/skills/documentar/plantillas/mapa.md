@@ -4,6 +4,7 @@ resumen: >-
   <Qué es el tema, en una o dos oraciones.>
 estabilidad: semi
 estado: borrador
+responde: []             # las preguntas esenciales (E1…): las responde el tema entero
 fuentes: []
 creado:
 revisado:

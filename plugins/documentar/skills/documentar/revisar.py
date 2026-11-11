@@ -256,7 +256,7 @@ def revisar(raiz: pathlib.Path, hoy: dt.date) -> list[dict]:
             if p not in preguntas:
                 h("ERROR", "responde-inexistente", n["ruta"], f"{p} no está en ningún ALCANCE.md")
             respondidas.add(p)
-    for p, ruta in sorted(preguntas.items()):
+    for p, ruta in sorted(preguntas.items(), key=lambda x: (x[0][0], int(x[0][1:]))):
         if p not in respondidas:
             h("ERROR", "pregunta-sin-nota", ruta, f"ninguna nota responde {p}")
 

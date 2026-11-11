@@ -53,6 +53,8 @@ Terminás cuando toda pregunta tiene al menos una nota que la responde, toda ár
 
 Primero el núcleo (áreas estables: qué es, cómo funciona, anatomía, procesos, historia, cómo falla), después la periferia (cómo se hace, cómo se decide, ecosistema, referencia) y al final la ruta y el Mapa. Cada nota desde su plantilla, con `estado: borrador`, `autoria: ia` y `creado` de hoy. Cada nota nueva entra al Mapa en el mismo cambio.
 
+El Mapa `responde` las preguntas esenciales; las de cobertura, las notas.
+
 Terminás cuando existe cada nota del mapa aprobado y el Mapa enlaza a todas.
 
 ### 5. Verificar
