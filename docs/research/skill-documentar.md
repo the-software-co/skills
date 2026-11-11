@@ -220,6 +220,13 @@ Lo que este research agrega y `conocimiento` no tiene:
 4. **Núcleo propio y corto, con puente para profundizar** (a criterio, se pidió decidir). Una base de consulta tiene que poder leerse sola, porque cada página es la primera (Baker). Por eso los conceptos del núcleo llevan su propia definición y su modelo mental, cortos. Donde hay un recurso canónico que pasa los criterios, la nota no lo repite: lo recomienda, dice qué parte leer y en qué fijarse (ADR 0011). Lo volátil nunca se copia si tiene una fuente viva a la que enlazar.
 5. **Las bases viven en [`the-software-co/biblioteca`](https://github.com/the-software-co/biblioteca)** (privado), con una carpeta por tema.
 
+6. **El alcance sale de una entrevista** (agregado el mismo día). Antes de escribir el `ALCANCE.md`, la skill entrevista a la persona en tres rondas, a la manera de grilling: 9 preguntas fijas y hasta 5 dinámicas, que salen de un vistazo al tema y de un escaneo del material de la persona. El research está en [`entrevista-previa.md`](entrevista-previa.md). Sus tres reglas:
+   - Preguntar por un caso real y reciente, no por preferencias (Critical Decision Method, Jobs to be Done, entrevista de referencia).
+   - Medir el nivel con un caso corto y con el material de la persona, no con su autoevaluación (Kalyuga; Dunning et al. 2004).
+   - Usar alternativas en competencia y no preguntas de sí o no, con una recomendación solo donde hay evidencia (Krosnick y Presser 2010; McKenzie et al. 2006).
+
+   Suma al alcance el campo **fuentes y acceso**, para el material propio y para lo pago que la persona puede conseguir. Viene de la prueba con el gecko: el material de la casa fue lo que más sirvió, y las fuentes veterinarias pagas, el mayor hueco.
+
 ## Preguntas para alinear
 
 Son las que se plantearon antes de las decisiones de arriba, y quedan como registro.

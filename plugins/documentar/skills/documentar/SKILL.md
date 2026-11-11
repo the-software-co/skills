@@ -17,19 +17,19 @@ Armás la base de conocimiento de un **tema** en la biblioteca: una carpeta con 
 
 ## `nuevo`
 
-### 1. Alcance
+### 1. Entrevista y alcance
 
-Escribí `<tema>/ALCANCE.md` desde [`plantillas/alcance.md`](plantillas/alcance.md):
+Entrevistá a la persona como dice [`entrevista.md`](entrevista.md): tres rondas cortas, con preguntas fijas y dinámicas, mientras dos subagentes hacen un vistazo al tema y escanean el material que ella te pase. Con las respuestas escribí `<tema>/ALCANCE.md` desde [`plantillas/alcance.md`](plantillas/alcance.md):
 
-- **intención** (aprender, consultar, decidir, operar), **audiencia** y **nivel previo**: lo que la persona dijo; lo que no dijo, decidilo vos y marcalo como supuesto;
+- **intención** (aprender, consultar, decidir, operar), **audiencia** y **nivel previo**;
 - **fuera de alcance**: lo vecino que no entra;
-- **preguntas**: de 3 a 5 esenciales y de 10 a 20 de cobertura, cada una con el área que la responde. Son el test del paso 6;
-- **tamaño**: un relevamiento rápido (una búsqueda, la taxonomía propia del dominio si la tiene) y la cuenta de notas que va a llevar. Si pasa de unas 40 notas, o el tema tiene partes que se aprenden por separado, partilo en sub-temas y decí cuáles se documentan ahora;
-- **volátiles**: productos, versiones, marcas y cifras del tema que el núcleo no puede nombrar.
+- **preguntas**: de 3 a 5 esenciales y de 10 a 20 de cobertura, cada una con el área que la responde. Son el test del paso 5;
+- **tamaño**: la cuenta de notas que va a llevar, según la taxonomía del vistazo y la dedicación que dijo la persona. Si pasa de unas 40 notas, o el tema tiene partes que se aprenden por separado, partilo en sub-temas y decí cuáles se documentan ahora;
+- **fuentes y acceso**: su material, lo pago o interno a lo que ella llega y vos no, y las fuentes canónicas públicas;
+- **volátiles**: productos, versiones, marcas y cifras del tema que el núcleo no puede nombrar;
+- **supuestos**: lo que decidiste por defecto.
 
-Si el tema es de la persona (su sistema, su colección, su oficio), entrevistala sobre dos o tres casos reales antes de escribir las preguntas: el experto no ve lo que omite.
-
-Terminás cuando mostraste el `ALCANCE.md` completo y la persona lo aprobó o lo corrigió. Anotá la fecha en `aprobado`.
+Terminás cuando la persona respondió la devolución de la ronda 3 sin objeciones pendientes y el `ALCANCE.md` refleja esa versión. Anotá la fecha en `aprobado`.
 
 ### 2. Investigar
 
@@ -76,7 +76,7 @@ Decile a la persona que las notas están en `borrador`: pasan a `vigente`, con `
 
 ## `ampliar`
 
-Leé el `ALCANCE.md` y el Mapa del tema. Sumá las preguntas nuevas al `ALCANCE.md` (con la ampliación como sub-tema si es grande) y pedí la aprobación; después seguí los pasos 2 a 6 solo para lo nuevo, enlazándolo con lo que ya existe. Lo que ya estaba explicado se enlaza, no se repite.
+Leé el `ALCANCE.md` y el Mapa del tema. Hacé una entrevista corta, con F1, F4, F7 y las dinámicas de [`entrevista.md`](entrevista.md), sobre lo nuevo. Sumá las preguntas nuevas al `ALCANCE.md` (con la ampliación como sub-tema si es grande) y cerrá con la devolución; después seguí los pasos 2 a 6 solo para lo nuevo, enlazándolo con lo que ya existe. Lo que ya estaba explicado se enlaza, no se repite.
 
 ## `mantener`
 
