@@ -212,9 +212,17 @@ Lo que este research agrega y `conocimiento` no tiene:
 - La pedagogía: conceptos umbral, concepciones erróneas con fuente, la secuencia de 7 pasos y una entrada por propósito.
 - Decidir cuándo un visual se gana su lugar.
 
+## Decisiones (2026-11-11)
+
+1. **Es una skill nueva**, no un modo de `conocimiento`. Puede reusar de ahí lo que sirva (la prosa, partes de `revisar.py`), pero tiene su propio propósito y se instala por separado.
+2. **La profundidad se fija antes de escribir.** El paso de alcance dimensiona el tema. Si es grande, se detecta en ese paso y se parte en sub-temas, y la partición se acuerda con la persona antes de investigar. Nunca se descubre a mitad de la escritura.
+3. **La ruta de aprendizaje entra según la intención** (criterio propio, la pregunta 3 quedó sin respuesta). Si la persona viene a aprender, se escribe el área 11 con los 7 pasos. Si viene a consultar, decidir u operar, el área 11 se reduce a un orden de lectura dentro del Mapa. Se puede pedir después sin rehacer nada.
+4. **Núcleo propio y corto, con puente para profundizar** (a criterio, se pidió decidir). Una base de consulta tiene que poder leerse sola, porque cada página es la primera (Baker). Por eso los conceptos del núcleo llevan su propia definición y su modelo mental, cortos. Donde hay un recurso canónico que pasa los criterios, la nota no lo repite: lo recomienda, dice qué parte leer y en qué fijarse (ADR 0011). Lo volátil nunca se copia si tiene una fuente viva a la que enlazar.
+5. **Las bases viven en un repo "biblioteca"**, con una carpeta por tema.
+
 ## Preguntas para alinear
 
-Son decisiones que cambian el diseño y que no se pueden resolver con un default.
+Son las que se plantearon antes de las decisiones de arriba, y quedan como registro.
 
 1. **¿Skill nueva o modo nuevo de `conocimiento`?** Un modo `dominio` reusa el frontmatter, las plantillas, `revisar.py` y la prosa, y suma lo de arriba. Una skill nueva tiene un propósito más claro, pero duplica la mitad. Mi recomendación es el modo, salvo que quieras que se pueda instalar por separado.
 2. **¿Cuánto produce por defecto?** Una base de 15 a 30 notas con todas las áreas en superficie y los conceptos umbral en profundidad, o algo más chico que crece a pedido.
