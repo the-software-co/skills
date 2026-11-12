@@ -17,6 +17,14 @@ El método está en
 python3 plugins/documentar/skills/documentar/revisar.py <carpeta del tema>
 ```
 
+## `tsc-organizacion`
+
+El mapa de los repos de negocio y conocimiento en tres capas: lo general (`conocimiento`), cómo lo hacemos (`fundar`, `marketing`) y las empresas (`tsc-negocio`, `lind-negocio`), con cómo pasa algo de una capa a otra y el panorama de lo pendiente en todos.
+
+```
+/plugin install tsc-organizacion@the-software-co
+```
+
 ## `conocimiento`
 
 Estructura conocimiento en notas atómicas enlazadas, en un vault de Obsidian o en los docs de un

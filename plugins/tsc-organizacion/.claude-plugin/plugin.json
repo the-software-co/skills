@@ -1,0 +1,10 @@
+{
+  "name": "tsc-organizacion",
+  "description": "El mapa de los repos de negocio y conocimiento en tres capas (conocimiento, cómo lo hacemos, las empresas) y cómo pasa algo de una capa a otra.",
+  "version": "0.1.0",
+  "author": {
+    "name": "The Software Co"
+  },
+  "repository": "https://github.com/the-software-co/skills",
+  "license": "MIT"
+}
