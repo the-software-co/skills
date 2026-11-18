@@ -209,3 +209,9 @@ def test_cifra_sin_evidencia(tmp_path):
     })
     hallazgo = next(h for h in revisar.revisar(t, HOY) if h["regla"] == "cifra-sin-evidencia")
     assert hallazgo["nota"] == "reptil.md" and "52.0" in hallazgo["mensaje"] and "30" not in hallazgo["mensaje"]
+
+
+def test_el_enfasis_no_cuenta_al_comparar_resumen_y_primera_linea(tmp_path):
+    t = tema(tmp_path, {"reptil.md": nota(extra="umbral: true\nresponde: [P1]\n",
+                                          cuerpo="# Reptil\n\nUn *reptil* es un vertebrado.\n")})
+    assert not any(h["regla"] == "resumen-distinto" for h in revisar.revisar(t, HOY))

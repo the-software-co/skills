@@ -436,7 +436,8 @@ def _primera_linea(cuerpo: str) -> str:
 
 
 def _normal(texto: str) -> str:
-    return re.sub(r"\s+", " ", texto).strip()
+    """Sin espacios repetidos ni marcas de énfasis, para comparar `resumen` con la primera línea."""
+    return re.sub(r"\s+", " ", re.sub(r"[*_`]", "", texto)).strip()
 
 
 def main() -> int:
