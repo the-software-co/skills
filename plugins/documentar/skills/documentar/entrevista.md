@@ -26,7 +26,7 @@ Abrí diciendo que son tres rondas cortas.
 - **Topes**:
   - tres rondas;
   - seis preguntas por mensaje;
-  - 14 preguntas en total, contando las F y las D, sin contar sub-ítems.
+  - 12 preguntas en total, contando las F y las D, sin contar sub-ítems.
 
   Si una ronda tiene más preguntas de las que entran, las de menos impacto pasan a supuesto. El ajuste que sigue a F9 no cuenta como ronda.
 
@@ -79,7 +79,7 @@ Va con el vistazo y el escaneo ya en la mano, como mucho seis preguntas, ordenad
 
 ## Ronda 3: la devolución
 
-- **F9**: el alcance entero, en 6 a 8 líneas, con cada supuesto marcado como *supuesto*. Si en la ronda 2 aceptó todo sin discutir, marcá lo que propusiste como *aceptado sin discutir*: queda para revisar con la primera entrega. Termina con "¿Qué sobra, qué falta y qué te tendría que haber preguntado y no pregunté?".
+- **F9**: el alcance entero, en 6 a 8 líneas, con cada supuesto marcado como *supuesto*. Incluí la lista de volátiles (productos, versiones, cifras) que salió del vistazo y del escaneo, para que la confirme. Si en la ronda 2 aceptó todo sin discutir, marcá lo que propusiste como *aceptado sin discutir*: queda para revisar con la primera entrega. Termina con "¿Qué sobra, qué falta y qué te tendría que haber preguntado y no pregunté?".
 
 La ronda 3 solo lleva F9. Una pregunta que no entró en la ronda 2 pasa a supuesto dentro de F9.
 
@@ -110,7 +110,7 @@ Ejemplos:
 
 Cerrá con F9 cuando pase cualquiera de estas cosas:
 
-- Cada campo del alcance (intención, audiencia, nivel, fuera de alcance, preguntas, tamaño, fuentes y acceso) tiene una respuesta o un supuesto.
+- Cada campo del alcance (intención, audiencia, nivel, fuera de alcance, escuela, preguntas, tamaño, fuentes y acceso, volátiles y dueño) tiene una respuesta o un supuesto.
 - La próxima pregunta no cambiaría el plan.
 - Se llegó al tope de rondas o de preguntas.
 - Hay **fatiga**: respuestas cada vez más cortas, dos "lo que vos digas" seguidos, o que acepte todas las propuestas.

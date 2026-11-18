@@ -60,7 +60,7 @@ En un tema nuevo, toda nota lleva un `area`. Las notas de una base anterior pued
 | `ruta` | La secuencia para aprender un área o el tema. Las bases anteriores la llaman `recorrido` | `ruta.md` |
 
 - Una `ficha` idealmente es un enlace comentado a la fuente real. Si copia valores, va `estabilidad: volatil` con la fecha de la copia. Un instrumento fijo (un cuestionario, una rúbrica) es `ficha` estable y va entero.
-- Una `decision` sobre algo que se eligió no se reescribe: si cambia, se escribe otra y la vieja pasa a `obsoleto` con `reemplazado_por`.
+- Una `decision` sobre algo que se eligió no se reescribe: si cambia, se escribe otra y la vieja pasa a `obsoleto` con `reemplazado_por`. Una que se propuso y no se adoptó queda en `borrador`. Si ninguna fuente registra el porqué, la nota lo dice; no se deduce.
 
 ## Frontmatter
 
@@ -109,7 +109,7 @@ reemplazado_por:          # id, solo si estado es obsoleto
 - **Mapa** (`tipo: mapa`): uno por carpeta. Según la base, es `<Tema>/<tema>.md` (un vault) o `README.md` (los docs de un repo o un tema sin convención). Agrupa las notas con una línea cada una que dice qué responde y cuándo leerla, enlaza los sub-Mapas y tiene `parte_de` hacia su Mapa padre. Es una lista comentada, nunca una consulta automática (como Dataview).
 - **Mapa raíz**: `conocimiento.md` en un vault, `docs/indice.md` en un repo. Enlaza el Mapa de cada tema.
 - **Ruta** (`tipo: ruta`): un orden para aprender un tema, para una audiencia. Ver "Ruta de aprendizaje".
-- Toda nota vigente está enlazada desde al menos un Mapa o una Ruta; si no, es huérfana.
+- Toda nota que no está `obsoleto` está enlazada desde al menos un Mapa o una Ruta; si no, es huérfana.
 
 ## Núcleo y periferia
 
@@ -189,7 +189,7 @@ Un diagrama entra si muestra un mecanismo, un flujo o una jerarquía, y si sin e
 | Vault de Obsidian | `[[id]]`, `[[id\|texto]]` | cualquier callout `> [!tipo]` |
 | Docs de un repo | `[texto](ruta/relativa.md)` | solo `NOTE`, `TIP`, `IMPORTANT`, `WARNING`, `CAUTION` |
 
-Una base es un vault si tiene `.obsidian/` arriba o si su `CONVENCIONES.md` lo dice. Los enlaces relativos de Markdown se leen igual en GitHub y en Obsidian.
+Una base es un vault si tiene `.obsidian/` arriba o si su `CONVENCIONES.md` lo dice. Las plantillas traen enlaces Markdown relativos: en un vault, pasalos a `[[id]]` o `[[id|texto]]`. Los enlaces relativos de Markdown se leen igual en GitHub y en Obsidian.
 
 ## Prosa
 

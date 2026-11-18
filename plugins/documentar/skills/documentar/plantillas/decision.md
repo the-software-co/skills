@@ -23,6 +23,8 @@ autoria: ia
 
 <La misma oración de `resumen`.>
 
+<Si es algo que se eligió: el contexto, lo que se decidió y por qué. Si ninguna fuente registra el porqué, se dice así ("el porqué no quedó registrado") y se le pregunta a quien decidió; no se deduce.>
+
 ## Alternativas
 
 | | <A> | <B> |

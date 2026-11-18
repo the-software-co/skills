@@ -48,3 +48,7 @@ python3 -m pytest tests
 ## Historia
 
 `conocimiento` (hasta la 0.4.0) se fundió en `documentar` 0.3.0: sus modos, su método y su lint viven ahí, y las bases que la usaban siguen pasando el lint sin cambios.
+
+## Licencia
+
+MIT

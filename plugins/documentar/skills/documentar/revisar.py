@@ -49,10 +49,11 @@ MULETILLAS = (
 WIKILINK = re.compile(r"\[\[([^\]|#^]+)(?:[#^][^\]|]*)?(?:\|[^\]]*)?\]\]")
 MDLINK = re.compile(r"\]\(([^)\s#]+\.md)(?:#[^)]*)?\)")
 PREGUNTA = re.compile(r"\*\*([PE]\d+)\*\*")
-VERSION = re.compile(r"\bv?\d+\.\d+(?:\.\d+)?\b")
+VERSION = re.compile(r"\bv\d+(?:\.\d+)+\b|\b\d+\.\d+\.\d+\b")
 PRECIO = re.compile(r"(?:US\$|U\$S|USD|ARS|EUR|\$|€)\s?\d|\d\s?(?:USD|ARS|EUR|dólares|pesos|euros)\b")
 # Un número que la nota afirma: con decimales, o con una unidad. Se busca en `.investigacion/`.
-CIFRA = re.compile(r"(?<![\w.,])(\d+(?:[.,]\d+)?)\s?(%|°C|°F|nmol/L|µW/cm²|UI/kg|mm|cm|kg|g|W)(?!\w)"
+CIFRA = re.compile(r"(?<![\w.,])(\d+(?:[.,]\d+)?)\s?(%|°C|°F|nmol/L|µW/cm²|UI/kg|UI|mg|ml|mm|cm|kg|g|W|lux|"
+                   r"min|h|días|meses|años|semanas)(?!\w)"
                    r"|(?<![\w.,])(\d+[.,]\d+)(?![\w.,])")
 
 
@@ -155,10 +156,19 @@ def _alcance_de(path: pathlib.Path, raiz: pathlib.Path) -> pathlib.Path | None:
     return None
 
 
+def _base(raiz: pathlib.Path) -> pathlib.Path:
+    """La raíz de la base: la carpeta más cercana hacia arriba con `CONVENCIONES.md`, `.obsidian/` o `.git`."""
+    for a in [raiz, *raiz.parents]:
+        if (a / "CONVENCIONES.md").exists() or (a / ".obsidian").is_dir() or (a / ".git").exists():
+            return a
+    return raiz
+
+
 def revisar(raiz: pathlib.Path, hoy: dt.date, desde: str | None = None) -> list[dict]:
     raiz = raiz.resolve()
+    base = _base(raiz)
     hallazgos: list[dict] = []
-    conf = configuracion(raiz)
+    conf = configuracion(raiz) or configuracion(base)
     ignorar = [raiz / x for x in _lista(conf.get("ignorar"))]
     palabras_max = int(conf.get("palabras_max") or PALABRAS_MAX)
 
@@ -185,7 +195,7 @@ def revisar(raiz: pathlib.Path, hoy: dt.date, desde: str | None = None) -> list[
         notas[id_] = {"ruta": rel, "datos": datos, "cuerpo": cuerpo, "path": p}
 
     # Un [[enlace]] de Obsidian resuelve contra todo el vault, no solo contra esta carpeta.
-    vault = next((a for a in [raiz, *raiz.parents] if (a / ".obsidian").is_dir()), raiz)
+    vault = next((a for a in [raiz, *raiz.parents] if (a / ".obsidian").is_dir()), base)
     todos = [x for x in vault.rglob("*") if x.is_file() and not any(y.startswith(".") for y in x.relative_to(vault).parts)]
     existentes = {x.stem if x.suffix == ".md" else x.name for x in todos}
     fuera = {x.stem: x for x in todos if x.suffix == ".md" and x.name not in NO_NOTAS | {"README.md"}
@@ -198,12 +208,13 @@ def revisar(raiz: pathlib.Path, hoy: dt.date, desde: str | None = None) -> list[
     enlazadas_desde_mapa: set[str] = set()
     for id_, n in notas.items():
         d, rel = n["datos"], n["ruta"]
-        wikis = {x.strip().rstrip("\\") for x in WIKILINK.findall(n["cuerpo"])}
+        sin_codigo = re.sub(r"```.*?```|`[^`\n]*`", "", n["cuerpo"], flags=re.S)
+        wikis = {x.strip().rstrip("\\") for x in WIKILINK.findall(sin_codigo)}
         for w in wikis:
             if pathlib.Path(w).name not in existentes and pathlib.Path(w).stem not in existentes:
                 hallar("error", "enlace-roto", rel, f"no existe [[{w}]]")
         enlaces = {pathlib.Path(w).stem for w in wikis if pathlib.Path(w).suffix in ("", ".md")}
-        for destino in MDLINK.findall(n["cuerpo"]):
+        for destino in MDLINK.findall(sin_codigo):
             if "://" in destino:
                 continue
             objetivo = (n["path"].parent / destino).resolve()
@@ -212,15 +223,16 @@ def revisar(raiz: pathlib.Path, hoy: dt.date, desde: str | None = None) -> list[
             enlaces.add(por_ruta.get(objetivo, pathlib.Path(destino).stem))
         n["enlaces"] = enlaces
         for ruta in sorted(set(re.findall(r"`([\w./-]+\.md)`", n["cuerpo"]))):
+            if pathlib.Path(ruta).name in NO_NOTAS:
+                continue
             if any(c.exists() for c in (n["path"].parent / ruta, raiz / ruta)):
                 hallar("aviso", "ruta-sin-enlace", rel, f"`{ruta}` es una nota: va como enlace para que se chequee")
 
-        sin_codigo = re.sub(r"```.*?```", "", n["cuerpo"], flags=re.S)
         palabras = len([w for w in sin_codigo.split() if re.search(r"\w", w)])
         tabla = (d or {}).get("tipo") == "ficha"
         if (d or {}).get("tipo") not in MAPAS and not tabla and palabras > palabras_max:
             hallar("aviso", "candidata-a-partir", rel, f"{palabras} palabras: ¿responde una sola pregunta?")
-        if d is None or d.get("tipo") not in TIPOS and not d.get("resumen"):
+        if d is None or (d.get("tipo") not in TIPOS and not d.get("resumen")):
             hallar("aviso", "formato-anterior", rel, "no sigue el método todavía (modo `existente`)")
             n["datos"] = None
             continue
@@ -250,6 +262,10 @@ def revisar(raiz: pathlib.Path, hoy: dt.date, desde: str | None = None) -> list[
             for otro in _lista(d.get(rel_)):
                 if otro not in notas and otro not in existentes:
                     hallar("error", "relacion-rota", rel, f"`{rel_}` apunta a `{otro}`, que no existe")
+        if d.get("reemplazado_por") and d["reemplazado_por"] not in notas and d["reemplazado_por"] not in existentes:
+            hallar("error", "relacion-rota", rel, f"`reemplazado_por` apunta a `{d['reemplazado_por']}`, que no existe")
+        if d.get("reemplazado_por") and d.get("estado") != "obsoleto":
+            hallar("aviso", "reemplazo-sin-obsoleto", rel, "tiene `reemplazado_por` pero no está `obsoleto`")
         if d.get("estado") == "obsoleto" and not d.get("reemplazado_por"):
             hallar("aviso", "obsoleto-sin-reemplazo", rel, "obsoleto sin `reemplazado_por`: ¿se puede borrar?")
         if d.get("tipo") in MAPAS:
@@ -326,11 +342,15 @@ def revisar(raiz: pathlib.Path, hoy: dt.date, desde: str | None = None) -> list[
 
 
 def _revisar_temas(raiz: pathlib.Path, notas: dict, hallar) -> None:
-    """Lo propio de los temas hechos con el modo `nuevo`: los que tienen `ALCANCE.md`."""
+    """Lo propio de los temas hechos con el modo `nuevo`: los que tienen `ALCANCE.md`.
+
+    Cada nota se mide contra el `ALCANCE.md` de su tema (el más cercano hacia arriba), así dos temas
+    pueden usar los mismos ids de pregunta (`P1`, `E1`) sin taparse.
+    """
     alcances = sorted(p for p in raiz.rglob("ALCANCE.md") if not any(x.startswith(".") for x in p.relative_to(raiz).parts))
     if not alcances:
         return
-    preguntas: dict[str, pathlib.Path] = {}
+    preguntas: dict[pathlib.Path, set[str]] = {}
     volatiles: dict[pathlib.Path, list[str]] = {}
     for a in alcances:
         fm, cuerpo = frontmatter(a.read_text(errors="replace"))
@@ -340,26 +360,26 @@ def _revisar_temas(raiz: pathlib.Path, notas: dict, hallar) -> None:
         if not fm.get("aprobado"):
             hallar("aviso", "alcance-sin-aprobar", a.relative_to(raiz), "falta `aprobado`: la persona no aprobó el alcance")
         volatiles[a] = [v for v in _lista(fm.get("volatiles")) if v]
-        for p in PREGUNTA.findall(cuerpo):
-            preguntas[p] = a
-    respondidas: set[str] = set()
+        preguntas[a] = set(PREGUNTA.findall(cuerpo))
+    respondidas: dict[pathlib.Path, set[str]] = {a: set() for a in alcances}
     umbral: dict[pathlib.Path, int] = {a: 0 for a in alcances}
+    crudos: dict[pathlib.Path, str] = {}
     for n in notas.values():
         d = n["datos"]
         a = _alcance_de(n["path"], raiz)
         if not d or not a:
             continue
         for p in _lista(d.get("responde")):
-            if p not in preguntas:
-                hallar("error", "responde-inexistente", n["ruta"], f"{p} no está en ningún ALCANCE.md")
-            respondidas.add(p)
+            if p not in preguntas[a]:
+                hallar("error", "responde-inexistente", n["ruta"], f"{p} no está en {a.relative_to(raiz)}")
+            respondidas[a].add(p)
         if d.get("tipo") not in (None, "mapa") and not d.get("area"):
             hallar("error", "campo-faltante", n["ruta"], "falta `area` (el tema tiene ALCANCE.md)")
         if str(d.get("umbral", "")).lower() == "true":
-            umbral[a] = umbral.get(a, 0) + 1
+            umbral[a] += 1
         if d.get("area") in NUCLEO and d.get("estabilidad") == "estable":
             texto = f"{_h1(n['cuerpo'])} {d.get('resumen', '')}"
-            for v in volatiles.get(a, []):
+            for v in volatiles[a]:
                 if re.search(rf"(?<!\w){re.escape(v)}(?!\w)", texto, re.I):
                     hallar("error", "volatil-en-nucleo", n["ruta"], f"el título o el resumen nombran «{v}»")
             for patron, que in ((VERSION, "una versión"), (PRECIO, "un precio")):
@@ -368,17 +388,18 @@ def _revisar_temas(raiz: pathlib.Path, notas: dict, hallar) -> None:
                     hallar("error", "volatil-en-nucleo", n["ruta"], f"el título o el resumen nombran {que}: «{m.group(0)}»")
         investigacion = a.parent / ".investigacion"
         if investigacion.is_dir():
-            crudo = _normal_cifras(" ".join(f.read_text(errors="replace") for f in investigacion.rglob("*.md")))
-            faltan = sorted({c for c in _cifras(n["cuerpo"]) if c not in crudo})
+            if a not in crudos:
+                crudos[a] = _normal_cifras(" ".join(f.read_text(errors="replace") for f in investigacion.rglob("*.md")))
+            faltan = sorted(c for c in _cifras(n["cuerpo"])
+                            if not re.search(rf"(?<![\d.,]){re.escape(c)}(?![\d]|[.,]\d)", crudos[a]))
             if faltan:
                 hallar("aviso", "cifra-sin-evidencia", n["ruta"],
                        f"no aparecen en .investigacion/: {', '.join(faltan[:8])}{' …' if len(faltan) > 8 else ''}")
-    for p, a in sorted(preguntas.items(), key=lambda x: (x[0][0], int(x[0][1:]))):
-        if p not in respondidas:
+    for a in alcances:
+        for p in sorted(preguntas[a] - respondidas[a], key=lambda x: (x[0], int(x[1:]))):
             hallar("error", "pregunta-sin-nota", a.relative_to(raiz), f"ninguna nota responde {p}")
-    for a, cuantos in umbral.items():
-        if not (UMBRAL[0] <= cuantos <= UMBRAL[1]):
-            hallar("aviso", "umbral", a.relative_to(raiz), f"hay {cuantos} conceptos umbral; van de {UMBRAL[0]} a {UMBRAL[1]}")
+        if not (UMBRAL[0] <= umbral[a] <= UMBRAL[1]):
+            hallar("aviso", "umbral", a.relative_to(raiz), f"hay {umbral[a]} conceptos umbral; van de {UMBRAL[0]} a {UMBRAL[1]}")
 
 
 def _cifras(cuerpo: str) -> set[str]:

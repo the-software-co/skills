@@ -204,14 +204,56 @@ def test_un_readme_sin_frontmatter_es_una_puerta_y_no_una_nota(tmp_path):
 def test_cifra_sin_evidencia(tmp_path):
     t = tema(tmp_path, {
         "reptil.md": nota(extra="umbral: true\nresponde: [P1]\n",
-                          cuerpo="# Reptil\n\nUn reptil es un vertebrado.\n\nSu zona preferida va de 25 a 30 °C y pesa 52,0 g.\n"),
-        ".investigacion/fisiologia.md": "La zona preferida es 30 °C según Merck.\n",
+                          cuerpo="# Reptil\n\nUn reptil es un vertebrado.\n\nSu zona preferida va de 25 a 30 °C, pesa 52,0 g y dura 12 %.\n"),
+        ".investigacion/fisiologia.md": "La zona preferida es 30 °C según Merck (2012).\n",
     })
     hallazgo = next(h for h in revisar.revisar(t, HOY) if h["regla"] == "cifra-sin-evidencia")
-    assert hallazgo["nota"] == "reptil.md" and "52.0" in hallazgo["mensaje"] and "30" not in hallazgo["mensaje"]
+    assert hallazgo["nota"] == "reptil.md" and "52.0" in hallazgo["mensaje"] and "12" in hallazgo["mensaje"]
+    assert "30" not in hallazgo["mensaje"]
 
 
 def test_el_enfasis_no_cuenta_al_comparar_resumen_y_primera_linea(tmp_path):
     t = tema(tmp_path, {"reptil.md": nota(extra="umbral: true\nresponde: [P1]\n",
                                           cuerpo="# Reptil\n\nUn *reptil* es un vertebrado.\n")})
     assert not any(h["regla"] == "resumen-distinto" for h in revisar.revisar(t, HOY))
+
+
+def test_dos_temas_con_los_mismos_ids_de_pregunta_no_se_tapan(tmp_path):
+    tema(tmp_path / "uno")
+    tema(tmp_path / "dos", {"termorregulacion.md": nota(area="como-funciona", titulo="Termorregulación",
+                                                       resumen="La termorregulación mantiene la temperatura.",
+                                                       extra="umbral: true\nrequiere: [ectotermia]\n")})
+    (tmp_path / "dos" / "reptil.md").rename(tmp_path / "dos" / "reptil-dos.md")
+    (tmp_path / "dos" / "reptil-dos.md").write_text(nota(extra="umbral: true\nresponde: [P1]\n"))
+    for f in ("lagarto", "ectotermia", "termorregulacion"):
+        p = tmp_path / "dos" / f"{f}.md"
+        p.rename(tmp_path / "dos" / f"{f}-dos.md")
+    r = {(h["regla"], h["nota"]) for h in revisar.revisar(tmp_path, HOY)}
+    assert ("pregunta-sin-nota", "dos/ALCANCE.md") in r
+    assert ("pregunta-sin-nota", "uno/ALCANCE.md") not in r
+
+
+def test_enlaces_dentro_de_codigo_no_se_chequean(tmp_path):
+    t = tema(tmp_path, {"reptil.md": nota(extra="umbral: true\nresponde: [P1]\n",
+                                          cuerpo="# Reptil\n\nUn reptil es un vertebrado.\n\n"
+                                                 "Un enlace se escribe `[[x]]`:\n\n```\n[[no-existe]] y [a](b.md)\n```\n")})
+    assert not any(h["regla"] == "enlace-roto" for h in revisar.revisar(t, HOY))
+
+
+def test_un_decimal_no_es_una_version(tmp_path):
+    t = tema(tmp_path, {"reptil.md": nota(resumen="Un reptil mantiene 28.5 grados.", extra="umbral: true\nresponde: [P1]\n")})
+    assert not any(h["regla"] == "volatil-en-nucleo" for h in revisar.revisar(t, HOY))
+
+
+def test_un_tema_dentro_de_una_base_ve_el_mapa_raiz_y_sus_convenciones(tmp_path):
+    (tmp_path / "CONVENCIONES.md").write_text("```yaml revisar\npalabras_max: 2000\n```\n")
+    (tmp_path / "indice.md").write_text(nota("mapa", resumen="Índice.", cuerpo="# Índice\n\nÍndice.\n\n- [Reptiles](reptiles/README.md)\n"))
+    t = tema(tmp_path / "reptiles", {"README.md": MAPA.replace("estado: borrador", "estado: borrador\nparte_de: [indice]")})
+    r = {(h["regla"], h["nota"]) for h in revisar.revisar(t, HOY)}
+    assert not any(regla == "relacion-rota" for regla, _ in r)
+
+
+def test_reemplazado_por_que_no_existe(tmp_path):
+    vieja = nota(area="anatomia", titulo="Lagarto", resumen="Un lagarto es un reptil escamoso.",
+                 extra="es_un: [reptil]\nreemplazado_por: nada\n").replace("estado: borrador", "estado: obsoleto")
+    assert ("relacion-rota", "lagarto.md") in reglas(tema(tmp_path, {"lagarto.md": vieja}))

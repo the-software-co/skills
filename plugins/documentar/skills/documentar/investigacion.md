@@ -27,7 +27,7 @@ Cada pregunta del alcance se busca primero donde se responde ese tipo de pregunt
 | Cómo se decide, qué conviene | Comparaciones con método (benchmarks, estudios, revisiones) | Practicantes reconocidos, marcados como tales |
 | Cómo falla | Estudios clínicos o de incidentes, issues y postmortems del proyecto | Foros de practicantes, marcados |
 | De dónde viene | Historia escrita por el campo, papers fundacionales | Divulgación con fuentes |
-| Salud, dinero, seguridad o ley | Manuales profesionales, guías de asociaciones, el texto de la norma | Siempre dos fuentes independientes |
+| Salud, dinero, seguridad o ley | Manuales profesionales, guías de asociaciones, el texto de la norma | La regla de alto riesgo de `metodo.md` |
 
 ## 3. La escuela
 
@@ -57,14 +57,16 @@ Mapa de fuentes del tema: <el del punto 1>. <Escuela elegida, si hay.>
 Reglas:
 - Buscá primero donde se responde cada tipo de pregunta (tabla del punto 2).
 - Por fuente: URL verificada, tipo (primaria o secundaria) y puntaje de 1 a 3 en
-  autoridad, profundidad, ejemplos y unicidad. En lo volátil sumá la recencia; en lo
+  autoridad, profundidad, ejemplos y unicidad. El puntaje decide qué fuente manda cuando
+  dos discrepan y cuál se propone como puente. En lo volátil sumá la recencia; en lo
   estable, una fuente canónica vieja vale más que una nueva.
 - Marcá qué leíste: [L] el texto completo, [M] los metadatos o el abstract, [S] un resumen
   secundario o del buscador.
 - Cada afirmación lleva su URL. Los números, las fechas y las citas van literales.
 - Cinco textos que parafrasean el mismo documento son una sola fuente.
-- Lo de salud, dinero, seguridad o ley lleva dos fuentes independientes, o decís que hay
-  una sola. Nada de dosis de medicamentos.
+- Lo de alto riesgo sigue la regla de "Fuentes" de metodo.md: dos fuentes independientes, o
+  decís que hay una sola. Una dosis solo entra si la da textual un manual o una guía
+  profesional; nunca se calcula ni se completa.
 - Si dos fuentes discrepan, das las dos.
 - Como mucho tres rondas de búsqueda por pregunta. Lo que no encontrás se declara como hueco.
 - Proponé el recurso puente de cada pregunta: cuál, qué parte y en qué fijarse.
@@ -96,8 +98,8 @@ Terminás cuando se cumple todo esto:
 
 - cada pregunta del alcance tiene al menos una fuente primaria, o un hueco declarado;
 - cada concepto umbral candidato tiene fuente, o queda marcado como hipótesis;
-- cada afirmación de alto riesgo tiene dos fuentes independientes, o está marcada que hay una sola.
+- cada afirmación de alto riesgo cumple la regla de alto riesgo de `metodo.md`.
 
 ## Costo
 
-Un tema de unas 25 notas lanza cerca de 14 subagentes: seis para investigar, cinco para escribir, dos para la prosa y uno o dos para el lector en frío. Si el alcance es chico, se pide menos. Si la persona quiere bajar el costo, se juntan ángulos y se escribe con menos subagentes.
+Un tema de unas 25 notas lanza cerca de 16 subagentes: seis para investigar, cinco para escribir, dos para la prosa, uno o dos para el cotejo con fuentes y uno o dos para el lector en frío. Decíselo a la persona en la devolución de la entrevista. Si quiere bajar el costo, se juntan ángulos y se escribe con menos subagentes.
