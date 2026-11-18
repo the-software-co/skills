@@ -6,6 +6,7 @@ resumen: >-
 umbral: false
 estabilidad: estable
 estado: borrador
+dueno:                    # el que dice CONVENCIONES.md
 responde: []
 es_un: []
 parte_de: []

@@ -227,6 +227,13 @@ Lo que este research agrega y `conocimiento` no tiene:
 
    Suma al alcance el campo **fuentes y acceso**, para el material propio y para lo pago que la persona puede conseguir. Viene de la prueba con el gecko: el material de la casa fue lo que más sirvió, y las fuentes veterinarias pagas, el mayor hueco.
 
+## Decisiones (2026-11-18)
+
+7. **`conocimiento` se funde en `documentar`.** Queda una sola skill con cinco modos: `nuevo`, `ampliar`, `existente`, `volcar` y `mantener`. `documentar` suma de `conocimiento` la documentación de sistemas (`sistemas.md`), Obsidian, `dueno`, el tipo `metrica` y la frescura atada a git. El lint es uno solo: las reglas propias de un tema nuevo (preguntas, umbral, área) corren solo donde hay `ALCANCE.md`, y así las bases anteriores pasan sin reescribirse.
+8. **Los temas viven en la capa 1, el vault `mtsdlf/conocimiento`.** Reemplaza la decisión 5. `biblioteca` duplicaba esa capa (ver `tsc-organizacion`): el gecko se muda al vault y `biblioteca` se archiva.
+9. **Se busca según la pregunta, no según la materia.** Una tabla por materia falla: en IA, aunque sea software, el conocimiento se produce en papers. El vistazo arma el mapa de fuentes del campo, y cada pregunta se busca primero donde se responde ese tipo de pregunta. El detalle está en `investigacion.md`, que también fija el brief de los subagentes y el plan B para fuentes bloqueadas.
+10. **La escuela entra en la entrevista.** Si el vistazo encuentra escuelas o enfoques que compiten, la ronda 2 pregunta desde cuál se escribe. Antes no se puede, porque hace falta saber algo del tema. La base se escribe desde la escuela elegida, con lo que difiere como disputa, o queda neutral con el mapa de escuelas.
+
 ## Preguntas para alinear
 
 Son las que se plantearon antes de las decisiones de arriba, y quedan como registro.

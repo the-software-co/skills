@@ -5,6 +5,7 @@ resumen: >-
   <Qué falla o qué se cree mal, en una o dos oraciones.>
 estabilidad: estable
 estado: borrador
+dueno:                    # el que dice CONVENCIONES.md
 responde: []
 es_un: []
 parte_de: []

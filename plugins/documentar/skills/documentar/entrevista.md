@@ -36,6 +36,8 @@ Antes de mandarla, despachá un subagente para el **vistazo al tema**: hasta cin
 
 - la taxonomía del dominio (el índice de la documentación oficial, el programa de una certificación o un curso de referencia);
 - las decisiones típicas y las controversias conocidas;
+- las **escuelas o enfoques** del campo, si hay varios que compiten (por ejemplo GitOps contra imperativo en Kubernetes, o escuelas de economía), con una línea de qué sostiene cada uno;
+- el **mapa de fuentes**: dónde se produce el conocimiento del campo y con qué peso (ver [`investigacion.md`](investigacion.md));
 - de 3 a 7 conceptos umbral candidatos, que son hipótesis hasta el paso de investigación.
 
 Las preguntas son abiertas:
@@ -85,7 +87,7 @@ La respuesta a F9 es la aprobación del alcance. Si corrige algo, se ajusta y se
 
 ## Preguntas dinámicas
 
-Salen de seis lugares:
+Salen de siete lugares:
 
 1. **Un término ambiguo**, si F6 no lo resuelve. Por ejemplo, "lagartos" puede ser terrario, campo o biología.
 2. **La plataforma real**: con qué programa, versión o entorno trabaja, cuando cambia lo que funciona. Ejemplos: Excel o LibreOffice, k3s o un cloud gestionado.
@@ -93,6 +95,7 @@ Salen de seis lugares:
 4. **Una decisión o controversia** del dominio relacionada con su uso. Cada una puede ser una nota `decision`.
 5. **El borde con otra disciplina**. Ejemplos: el cierre de mes toca la contabilidad; el terrario toca la veterinaria.
 6. **Su material**: una contradicción con la fuente oficial, o un contexto que cambia las fuentes.
+7. **La escuela**: si el vistazo encontró escuelas o enfoques que compiten y elegir uno cambia lo que la base afirma. Se pregunta en la ronda 2, nunca antes, con una línea por escuela y la opción "ninguna, neutral". Si su material o sus respuestas ya muestran una, va como propuesta con ese motivo.
 
 **Filtro**: una dinámica entra solo si su respuesta cambia el plan (las fuentes, los subtemas, la profundidad o el formato) y no se puede inferir de su material ni del contexto. Lo que se puede inferir pasa a supuesto. Se ordenan por cuánto cambian el plan y por cuánto no sabés.
 
@@ -100,6 +103,7 @@ Ejemplos:
 
 - **Kubernetes, por la plataforma**: "Tus notas son de k3s y Helm, sin cloud gestionado. ¿La base cubre solo self-hosted, self-hosted con una referencia a los gestionados, o los dos por igual?" ➡️ Solo self-hosted: es lo que operás.
 - **Kubernetes, por una decisión**: "Para el tráfico de entrada: ¿Gateway API, Ingress o comparar los dos?" ➡️ Comparar, si vas a decidir; solo el que usás, si vas a operar.
+- **Economía, por la escuela**: "El campo tiene enfoques que llegan a conclusiones distintas: neoclásico, keynesiano, austríaco. ¿Escribo desde uno, o neutral y con el mapa de las escuelas?" ➡️ Neutral: tus preguntas son para entender, no para aplicar una política.
 - **Lagartos, por el contexto**: "¿Qué especie y en qué país? Cambian la dieta, los parámetros del terrario y la legislación."
 
 ## Cuándo parar

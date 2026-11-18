@@ -5,6 +5,7 @@ resumen: >-
   <Qué se aprende con esta ruta y para quién.>
 estabilidad: semi
 estado: borrador
+dueno:                    # el que dice CONVENCIONES.md
 responde: []
 requiere: []
 fuentes: []

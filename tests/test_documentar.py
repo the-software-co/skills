@@ -1,4 +1,4 @@
-"""`revisar.py` de documentar: cada regla sobre un tema mínimo en un directorio temporal."""
+"""`revisar.py` sobre un tema hecho con el modo `nuevo` (con `ALCANCE.md`): cada regla en un directorio temporal."""
 import datetime as dt
 import importlib.util
 import pathlib
@@ -31,12 +31,17 @@ def nota(tipo="concepto", area="que-es", resumen="Un reptil es un vertebrado.", 
     cuerpo = cuerpo if cuerpo is not None else f"# {titulo}\n\n{resumen}\n"
     area_linea = "" if tipo == "mapa" else f"area: {area}\n"
     return (f"---\ntipo: {tipo}\n{area_linea}resumen: >-\n  {resumen}\nestabilidad: {estabilidad}\n"
-            f"estado: borrador\nfuentes: [https://example.org]\ncreado: 2026-11-11\nautoria: ia\n{extra}---\n\n{cuerpo}")
+            f"estado: borrador\ndueno: matias\nfuentes: [https://example.org]\ncreado: 2026-11-11\nautoria: ia\n"
+            f"{extra}---\n\n{cuerpo}")
 
 
 MAPA = nota("mapa", resumen="Mapa de Reptiles.",
-            cuerpo="# Reptiles\n\n- [Reptil](reptil.md) — qué es.\n- [Termorregulación](termorregulacion.md) — cómo.\n"
+            cuerpo="# Reptiles\n\nMapa de Reptiles.\n\n- [Reptil](reptil.md) — qué es.\n"
+                   "- [Termorregulación](termorregulacion.md) — cómo.\n"
                    "- [Ectotermia](ectotermia.md) — la idea.\n- [Lagarto](lagarto.md) — un caso.\n")
+
+# Avisos que da cualquier tema recién escrito: borradores sin confirmar y un Mapa sin padre fuera del vault.
+DE_BORRADOR = {"pendiente-de-revision", "mapa-sin-padre"}
 
 
 def tema(tmp_path, cambios: dict[str, str | None] | None = None):
@@ -61,50 +66,57 @@ def tema(tmp_path, cambios: dict[str, str | None] | None = None):
 
 
 def reglas(carpeta):
-    return {(h["regla"], h["archivo"]) for h in revisar.revisar(carpeta, HOY)}
+    return {(h["regla"], h["nota"]) for h in revisar.revisar(carpeta, HOY) if h["regla"] not in DE_BORRADOR}
 
 
 def test_un_tema_bien_armado_no_tiene_hallazgos(tmp_path):
     assert reglas(tema(tmp_path)) == set()
 
 
-def test_sin_alcance_y_sin_mapa(tmp_path):
-    r = reglas(tema(tmp_path, {"ALCANCE.md": None, "sub/hoja.md": nota()}))
-    assert ("sin-alcance", "ALCANCE.md") in r
-    assert ("sin-mapa", "sub/README.md") in r
+def test_sin_mapa_y_alcance_sin_aprobar(tmp_path):
+    r = reglas(tema(tmp_path, {"ALCANCE.md": ALCANCE.replace("aprobado: 2026-11-10\n", ""),
+                               "sub/hoja.md": nota(titulo="Hoja")}))
+    assert ("alcance-sin-aprobar", "ALCANCE.md") in r
+    assert ("tema-sin-mapa", "sub") in r
 
 
-def test_frontmatter_invalido(tmp_path):
+def test_campo_faltante_y_valor_invalido(tmp_path):
     r = reglas(tema(tmp_path, {
-        "lagarto.md": nota(area="cualquiera", titulo="Lagarto", extra="es_un: [reptil]\n").replace("tipo: concepto", "tipo: nota"),
+        "lagarto.md": nota(area="cualquiera", titulo="Lagarto", extra="es_un: [reptil]\n").replace("dueno: matias\n", ""),
         "reptil.md": "# Reptil\n\nSin frontmatter.\n",
     }))
-    assert ("frontmatter", "lagarto.md") in r
-    assert ("frontmatter", "reptil.md") in r
+    assert ("valor-invalido", "lagarto.md") in r
+    assert ("campo-faltante", "lagarto.md") in r
+    assert ("formato-anterior", "reptil.md") in r
+
+
+def test_area_obligatoria_en_un_tema_con_alcance(tmp_path):
+    sin_area = nota(titulo="Lagarto", extra="es_un: [reptil]\n").replace("area: que-es\n", "")
+    assert ("campo-faltante", "lagarto.md") in reglas(tema(tmp_path, {"lagarto.md": sin_area}))
 
 
 def test_enlace_y_relacion_rotos(tmp_path):
     r = reglas(tema(tmp_path, {
-        "lagarto.md": nota(area="anatomia", titulo="Lagarto", extra="es_un: [reptil]\nrequiere: [no-existe]\n",
-                           cuerpo="# Lagarto\n\nVer [escama](escama.md).\n"),
+        "lagarto.md": nota(area="anatomia", titulo="Lagarto", resumen="Un lagarto es un reptil escamoso.",
+                           extra="es_un: [reptil]\nrequiere: [no-existe]\n",
+                           cuerpo="# Lagarto\n\nUn lagarto es un reptil escamoso.\n\nVer [escama](escama.md).\n"),
     }))
     assert ("enlace-roto", "lagarto.md") in r
     assert ("relacion-rota", "lagarto.md") in r
 
 
 def test_ciclo_en_requiere(tmp_path):
-    r = reglas(tema(tmp_path, {
-        "reptil.md": nota(extra="umbral: true\nresponde: [P1]\nrequiere: [termorregulacion]\n"),
-    }))
+    r = reglas(tema(tmp_path, {"reptil.md": nota(extra="umbral: true\nresponde: [P1]\nrequiere: [termorregulacion]\n")}))
     assert any(regla == "ciclo-requiere" for regla, _ in r)
 
 
 def test_jerarquia_y_relacionado_a_la_vez(tmp_path):
     r = reglas(tema(tmp_path, {
-        "lagarto.md": nota(area="anatomia", titulo="Lagarto", extra="es_un: [reptil]\nrelacionado: [reptil]\n"),
+        "lagarto.md": nota(area="anatomia", titulo="Lagarto", resumen="Un lagarto es un reptil escamoso.",
+                           extra="es_un: [reptil]\nrelacionado: [reptil]\n"),
         "reptil.md": nota(extra="umbral: true\nresponde: [P1]\nrelacionado: [lagarto]\n"),
     }))
-    assert ("jerarquia-y-relacionado", "lagarto.md") in r
+    assert ("relacionado-en-jerarquia", "lagarto.md") in r
 
 
 def test_requiere_redundante(tmp_path):
@@ -152,18 +164,18 @@ def test_volatil_fuera_del_nucleo_no_es_error(tmp_path):
 
 
 def test_umbral_fuera_de_rango(tmp_path):
-    r = reglas(tema(tmp_path, {"reptil.md": nota(extra="responde: [P1]\n")}))
-    assert ("umbral", "README.md") in r
+    assert ("umbral", "ALCANCE.md") in reglas(tema(tmp_path, {"reptil.md": nota(extra="responde: [P1]\n")}))
 
 
 def test_revision_vencida(tmp_path):
-    vieja = nota(area="anatomia", titulo="Lagarto", estabilidad="volatil", extra="es_un: [reptil]\n")
+    vieja = nota(area="anatomia", titulo="Lagarto", resumen="Un lagarto es un reptil escamoso.",
+                 estabilidad="volatil", extra="es_un: [reptil]\n")
     vieja = vieja.replace("estado: borrador", "estado: vigente\nrevisado: 2026-01-01")
     assert ("revision-vencida", "lagarto.md") in reglas(tema(tmp_path, {"lagarto.md": vieja}))
 
 
 def test_subtema_con_su_mapa_y_alcance(tmp_path):
-    sub_mapa = nota("mapa", resumen="Mapa de Escamas.", cuerpo="# Escamas\n\n- [Escama](escama.md) — qué es.\n")
+    sub_mapa = nota("mapa", resumen="Mapa de Escamas.", cuerpo="# Escamas\n\nMapa de Escamas.\n\n- [Escama](escama.md) — qué es.\n")
     r = reglas(tema(tmp_path, {
         "README.md": MAPA + "- [Escamas](escamas/README.md) — sub-tema.\n",
         "escamas/README.md": sub_mapa,
@@ -171,10 +183,29 @@ def test_subtema_con_su_mapa_y_alcance(tmp_path):
         "escamas/escama.md": nota(area="anatomia", titulo="Escama", resumen="Una escama es una placa.",
                                   extra="responde: [P3, P4]\nparte_de: [lagarto]\n"),
     }))
-    assert r == set()
+    assert ("umbral", "escamas/ALCANCE.md") in r  # el sub-tema no tiene conceptos umbral propios
+    assert r - {("umbral", "escamas/ALCANCE.md")} == set()
 
 
 def test_una_nota_que_se_llama_como_el_tema_no_choca_con_el_mapa(tmp_path):
     carpeta = tmp_path / "reptil"
     tema(carpeta)
     assert reglas(carpeta) == set()
+
+
+def test_un_readme_sin_frontmatter_es_una_puerta_y_no_una_nota(tmp_path):
+    (tmp_path / "docs").mkdir()
+    tema(tmp_path / "docs")
+    (tmp_path / "docs" / "guia").mkdir()
+    (tmp_path / "docs" / "guia" / "README.md").write_text("# Guía\n\nVer el índice.\n")
+    assert reglas(tmp_path / "docs") == set()
+
+
+def test_cifra_sin_evidencia(tmp_path):
+    t = tema(tmp_path, {
+        "reptil.md": nota(extra="umbral: true\nresponde: [P1]\n",
+                          cuerpo="# Reptil\n\nUn reptil es un vertebrado.\n\nSu zona preferida va de 25 a 30 °C y pesa 52,0 g.\n"),
+        ".investigacion/fisiologia.md": "La zona preferida es 30 °C según Merck.\n",
+    })
+    hallazgo = next(h for h in revisar.revisar(t, HOY) if h["regla"] == "cifra-sin-evidencia")
+    assert hallazgo["nota"] == "reptil.md" and "52.0" in hallazgo["mensaje"] and "30" not in hallazgo["mensaje"]

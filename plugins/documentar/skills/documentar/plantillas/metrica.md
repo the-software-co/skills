@@ -1,5 +1,6 @@
 ---
 tipo: metrica
+area: como-funciona
 resumen: >-
   <Qué mide, sobre quién y en qué período, en una o dos oraciones.>
 estado: borrador
@@ -7,7 +8,7 @@ estabilidad: semi
 dueno:
 revisado:
 creado:
-autoria:
+autoria: ia
 idioma: es
 fuentes: []
 aliases: []

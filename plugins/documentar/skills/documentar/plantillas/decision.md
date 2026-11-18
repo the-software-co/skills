@@ -5,6 +5,7 @@ resumen: >-
   <Qué hay que elegir y cuál es el criterio principal.>
 estabilidad: semi
 estado: borrador
+dueno:                    # el que dice CONVENCIONES.md
 responde: []
 es_un: []
 parte_de: []

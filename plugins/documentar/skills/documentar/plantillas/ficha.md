@@ -5,6 +5,7 @@ resumen: >-
   <Qué dato, tabla o lista exacta trae esta ficha.>
 estabilidad: volatil
 estado: borrador
+dueno:                    # el que dice CONVENCIONES.md
 responde: []
 es_un: []
 parte_de: []
