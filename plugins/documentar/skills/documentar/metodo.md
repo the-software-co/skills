@@ -18,6 +18,7 @@ Reglas para armar el árbol:
 - **Las verticales son partes del sujeto, no temas de conversación.** Responden "¿de qué está hecho?" o "¿en qué etapas o subsistemas se divide?". Kubernetes se divide en plano de control, nodos, cargas de trabajo, red, almacenamiento y seguridad; un gecko leopardo, en biología, recinto, alimentación, salud, reproducción y conducta; el marketing, en mercado y cliente, propuesta, marca, canales, comunicación y medición. "Debates", "B2B" o "Escuelas" no son partes: son cortes transversales.
 - **Usá la división del propio dominio.** Si el campo ya se clasifica a sí mismo (la filogenia, los objetos de una API, el índice canónico de un libro de texto), las verticales la siguen.
 - **De cuatro a ocho verticales en un tema general.** Con menos, el todo no está descompuesto; con más, mezclaste niveles. Un sistema tiene las que tiene.
+- **Un tema chico no se parte en carpetas.** Con menos de unas 12 notas, las verticales son secciones de la entrada del tema, cada una con sus componentes enlazados, y las notas quedan en la carpeta del tema. Cuando crece, cada sección pasa a ser una carpeta.
 - **La profundidad la pone el sujeto.** Una vertical tiene subcarpetas solo si sus componentes tienen partes propias que se estudian por separado. No hay un número fijo de niveles, y dos verticales pueden tener profundidades distintas.
 - **Lo transversal va a `Fundamentos/`**: historia, escuelas, fuentes y glosario del tema. No es una vertical, porque no es una parte del sujeto.
 - **Cada cosa en un solo lugar.** Una nota vive en la vertical de la que es parte y se enlaza desde las otras. Si una nota parece de dos verticales, o es un concepto de arriba (va al todo) o el árbol está mal cortado.
@@ -41,7 +42,7 @@ Una nota contesta las que tienen contenido. La entrada de una vertical tiene que
 - **Primera línea**: después del H1, una definición de una o dos oraciones que se entiende sola, igual al `resumen` (el lint lo avisa). En un ADR que ya existía no hace falta.
 - **Títulos de sección**: dicen lo que dice la sección, con las palabras del tema. "Los cinco componentes", "Por qué crece por penetración", "Dónde choca con Sharp". Nunca títulos de formulario como "Por qué existe", "Cómo funciona", "No confundir con", "Para profundizar" o "Relaciones". Si un título serviría en cualquier otra nota, está mal.
 - **Título de la nota**: el término que la gente usa, en singular. Si lo corriente es en inglés, va en inglés ("Churn"); el otro idioma va en `aliases`.
-- **Archivo**: kebab-case ASCII. Las carpetas, con mayúscula inicial y guiones (`Mercado-y-cliente/`). La entrada de una carpeta se llama como ella en minúscula (`Mercado-y-cliente/mercado-y-cliente.md`), salvo en los docs de un repo, donde es `README.md`.
+- **Archivo**: kebab-case ASCII. Las carpetas, con mayúscula inicial y guiones (`Mercado-y-cliente/`). La entrada de una carpeta se llama como ella en minúscula (`Mercado-y-cliente/mercado-y-cliente.md`), salvo en los docs de un repo, donde es `README.md`. Como los nombres de archivo son únicos en la base, una carpeta que se repite entre temas lleva el calificador en la entrada y no en la carpeta: `Fundamentos/fundamentos-de-marketing.md`.
 - **Idioma**: el de las notas del tema; si no hay, el de la persona. Un tema va en un idioma.
 
 ## Enlaces
