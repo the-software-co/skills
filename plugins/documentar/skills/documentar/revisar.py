@@ -3,11 +3,10 @@
 
     python3 revisar.py <carpeta> [--hoy AAAA-MM-DD] [--desde REF] [--json]
 
-Sirve para un vault de Obsidian, para los docs de un repo y para un tema hecho con el modo `nuevo`.
-Las reglas de preguntas, conceptos umbral y área corren solo en las carpetas que tienen `ALCANCE.md`.
-`--desde` (p. ej. `origin/main`, en CI) avisa de las notas cuyas `fuentes` cambiaron en el diff y que
-la nota misma no acompañó. Un `CONVENCIONES.md` en la carpeta puede traer un bloque ```yaml revisar```
-con `ignorar: [subcarpeta, …]` y `palabras_max: N`.
+Revisa las notas de <carpeta>; los enlaces se resuelven contra toda la base (la carpeta más cercana
+hacia arriba con `CONVENCIONES.md` o `.git`). `--desde` (p. ej. `origin/main`, en CI) avisa de las
+notas vigentes cuyas `fuentes` cambiaron en el diff y que la nota no acompañó. Un `CONVENCIONES.md`
+puede traer un bloque ```yaml revisar``` con `ignorar: [subcarpeta, …]` y `palabras_max: N`.
 
 Sale con 1 si hay errores; los avisos no cambian la salida.
 """
@@ -18,25 +17,26 @@ import pathlib
 import re
 import subprocess
 import sys
+import urllib.parse
 
-TIPOS = {"concepto", "metrica", "como-hacer", "falla", "ficha", "decision", "mapa", "ruta", "recorrido"}
-MAPAS = {"mapa", "ruta", "recorrido"}  # `recorrido` es el nombre anterior de `ruta`
-AREAS = {"que-es", "como-funciona", "anatomia", "procesos", "como-se-hace", "como-se-decide",
-         "como-falla", "historia", "ecosistema", "referencia", "ruta"}
-NUCLEO = {"que-es", "como-funciona", "anatomia", "procesos", "historia", "como-falla"}
 ESTADOS = {"borrador", "vigente", "obsoleto"}
-IDIOMAS = {"es", "en"}
-AUTORIAS = {"ia", "mixta", "humano"}
+ESTABILIDADES = {"estable", "semi", "volatil"}
 REVISION_DIAS = {"estable": 365, "semi": 180, "volatil": 90}
-OBLIGATORIOS = ("tipo", "resumen", "estado", "estabilidad", "dueno")
-JERARQUIA = ("parte_de", "es_un", "instancia_de")
-RELACIONES = JERARQUIA + ("requiere", "relacionado")
-PALABRAS_MAX = 450
-UMBRAL = (3, 7)
-MAPAS_RAIZ = {"conocimiento", "indice"}
+OBLIGATORIOS = ("resumen", "estado", "estabilidad")
+PALABRAS_MAX = 1500
 NO_NOTAS = {"CONVENCIONES.md", "ALCANCE.md"}
+# Sin frontmatter, estos archivos son puertas: no son notas, pero sus enlaces cuentan.
+PUERTAS = {"README.md", "CONTEXT.md", "GLOSSARY.md", "GLOSARIO.md", "AGENTS.md", "CLAUDE.md"}
+RAICES = {"conocimiento", "indice", "index"}
+TIPOS_ENTRADA = {"mapa", "ruta", "recorrido"}  # bases anteriores
 NOMBRE = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
-# Muletillas de texto generado: cada una se reemplaza por el dato o se borra (Prosa).
+# Títulos de formulario: sirven en cualquier nota, así que no dicen nada de esta (ver "La nota").
+TITULOS_PLANTILLA = {
+    "por qué existe", "cómo funciona", "no confundir con", "para profundizar", "relaciones", "ejemplo",
+    "qué es", "notas", "alternativas", "qué hacer", "cómo se reconoce", "por qué pasa", "si algo falla",
+    "cómo saber que salió", "cuándo cada una", "debate abierto", "antes de empezar", "las piezas",
+    "las notas de esta parte", "las notas", "por dónde entrar", "por dónde empezar", "sub-temas",
+}
 MULETILLAS = (
     "crucial", "robusto", "robusta", "cabe destacar", "cabe mencionar", "cabe señalar",
     "es importante destacar", "es importante señalar", "es importante tener en cuenta",
@@ -45,16 +45,9 @@ MULETILLAS = (
     "it's important to note", "in summary", "in conclusion", "crucial role", "robust", "seamless",
     "leverage", "delve",
 )
-
 WIKILINK = re.compile(r"\[\[([^\]|#^]+)(?:[#^][^\]|]*)?(?:\|[^\]]*)?\]\]")
 MDLINK = re.compile(r"\]\(([^)\s#]+\.md)(?:#[^)]*)?\)")
-PREGUNTA = re.compile(r"\*\*([PE]\d+)\*\*")
-VERSION = re.compile(r"\bv\d+(?:\.\d+)+\b|\b\d+\.\d+\.\d+\b")
-PRECIO = re.compile(r"(?:US\$|U\$S|USD|ARS|EUR|\$|€)\s?\d|\d\s?(?:USD|ARS|EUR|dólares|pesos|euros)\b")
-# Un número que la nota afirma: con decimales, o con una unidad. Se busca en `.investigacion/`.
-CIFRA = re.compile(r"(?<![\w.,])(\d+(?:[.,]\d+)?)\s?(%|°C|°F|nmol/L|µW/cm²|UI/kg|UI|mg|ml|mm|cm|kg|g|W|lux|"
-                   r"min|h|días|meses|años|semanas)(?!\w)"
-                   r"|(?<![\w.,])(\d+[.,]\d+)(?![\w.,])")
+CODIGO = re.compile(r"```.*?```|~~~.*?~~~|`[^`\n]*`", re.S)
 
 
 def frontmatter(texto: str) -> tuple[dict | None, str]:
@@ -72,25 +65,19 @@ def frontmatter(texto: str) -> tuple[dict | None, str]:
         if linea.startswith((" ", "\t")) and clave:
             item = linea.strip()
             if item.startswith("- "):
-                datos[clave] = (datos[clave] if isinstance(datos[clave], list) else []) + [_escalar(item[2:])]
+                datos[clave] = (datos[clave] if isinstance(datos[clave], list) else []) + [item[2:].strip().strip("'\"")]
             elif isinstance(datos[clave], str):
                 datos[clave] = (datos[clave] + " " + item).strip()
             continue
         clave, _, valor = linea.partition(":")
         clave, valor = clave.strip(), re.sub(r"\s+#.*$", "", valor).strip()
         if valor.startswith("[") and valor.endswith("]"):
-            datos[clave] = [_escalar(v) for v in valor[1:-1].split(",") if v.strip()]
+            datos[clave] = [v.strip().strip("'\"") for v in valor[1:-1].split(",") if v.strip()]
         elif valor in (">", ">-", "|", "|-"):
             datos[clave] = ""
         else:
-            datos[clave] = _escalar(valor)
+            datos[clave] = valor.strip("'\"")
     return datos, texto[fin + 4:]
-
-
-def _escalar(v: str) -> str:
-    v = v.strip().strip("'\"")
-    m = re.fullmatch(r"\[\[([^\]|]+)(?:\|[^\]]*)?\]\]", v)
-    return m.group(1) if m else v
 
 
 def _lista(v) -> list[str]:
@@ -99,9 +86,9 @@ def _lista(v) -> list[str]:
     return v if isinstance(v, list) else [v]
 
 
-def configuracion(raiz: pathlib.Path) -> dict:
-    """El bloque ```yaml revisar``` del `CONVENCIONES.md` de la base, si hay."""
-    conv = raiz / "CONVENCIONES.md"
+def configuracion(carpeta: pathlib.Path) -> dict:
+    """El bloque ```yaml revisar``` del `CONVENCIONES.md` de la carpeta, si hay."""
+    conv = carpeta / "CONVENCIONES.md"
     m = re.search(r"```yaml revisar\n(.*?)```", conv.read_text(), re.S) if conv.exists() else None
     if not m:
         return {}
@@ -109,344 +96,201 @@ def configuracion(raiz: pathlib.Path) -> dict:
     return datos or {}
 
 
-def _ciclo(grafo: dict[str, list[str]]) -> list[str] | None:
-    estado: dict[str, int] = {}
-    pila: list[str] = []
-
-    def visitar(n: str) -> list[str] | None:
-        estado[n] = 1
-        pila.append(n)
-        for m in grafo.get(n, []):
-            if estado.get(m) == 1:
-                return pila[pila.index(m):] + [m]
-            if m not in estado and m in grafo:
-                c = visitar(m)
-                if c:
-                    return c
-        pila.pop()
-        estado[n] = 2
-        return None
-
-    for n in sorted(grafo):
-        if n not in estado:
-            c = visitar(n)
-            if c:
-                return c
-    return None
-
-
-def _alcanzables(grafo: dict[str, list[str]], desde: str, saltando: str | None = None) -> set[str]:
-    vistos: set[str] = set()
-    pendientes = [m for m in grafo.get(desde, []) if m != saltando]
-    while pendientes:
-        n = pendientes.pop()
-        if n not in vistos:
-            vistos.add(n)
-            pendientes.extend(grafo.get(n, []))
-    return vistos
-
-
-def _alcance_de(path: pathlib.Path, raiz: pathlib.Path) -> pathlib.Path | None:
-    """El `ALCANCE.md` del tema de una nota: en su carpeta o en una de arriba, sin salir de la raíz."""
-    for carpeta in [path.parent, *path.parent.parents]:
-        if (carpeta / "ALCANCE.md").exists():
-            return carpeta / "ALCANCE.md"
-        if carpeta == raiz:
-            break
-    return None
-
-
-def _base(raiz: pathlib.Path) -> pathlib.Path:
-    """La raíz de la base: la carpeta más cercana hacia arriba con `CONVENCIONES.md`, `.obsidian/` o `.git`."""
-    for a in [raiz, *raiz.parents]:
-        if (a / "CONVENCIONES.md").exists() or (a / ".obsidian").is_dir() or (a / ".git").exists():
+def _base(carpeta: pathlib.Path) -> pathlib.Path:
+    for a in [carpeta, *carpeta.parents]:
+        if (a / "CONVENCIONES.md").exists() or (a / ".git").exists():
             return a
-    return raiz
+    return carpeta
 
 
-def revisar(raiz: pathlib.Path, hoy: dt.date, desde: str | None = None) -> list[dict]:
-    raiz = raiz.resolve()
-    base = _base(raiz)
-    hallazgos: list[dict] = []
-    conf = configuracion(raiz) or configuracion(base)
-    ignorar = [raiz / x for x in _lista(conf.get("ignorar"))]
+def _archivos(base: pathlib.Path, ignorar: list[pathlib.Path]) -> list[pathlib.Path]:
+    salida = []
+    for p in sorted(base.rglob("*.md")):
+        rel = p.relative_to(base)
+        if any(parte.startswith(".") for parte in rel.parts) or p.name in NO_NOTAS:
+            continue
+        if any(p.is_relative_to(i) for i in ignorar):
+            continue
+        salida.append(p)
+    return salida
+
+
+def _es_entrada(p: pathlib.Path, datos: dict, base: pathlib.Path) -> bool:
+    """La entrada de una carpeta: se llama como ella, es su README o su índice, o es un Mapa de antes."""
+    if datos.get("tipo") in TIPOS_ENTRADA:
+        return True
+    if p.name == "README.md" or p.stem in RAICES:
+        return True
+    return p.stem == p.parent.name.lower()
+
+
+def revisar(carpeta: pathlib.Path, hoy: dt.date, desde: str | None = None) -> list[dict]:
+    carpeta = carpeta.resolve()
+    base = _base(carpeta)
+    conf = configuracion(carpeta) or configuracion(base)
+    ignorar = [base / x for x in _lista(conf.get("ignorar"))] + [carpeta / x for x in _lista(conf.get("ignorar"))]
     palabras_max = int(conf.get("palabras_max") or PALABRAS_MAX)
+    hallazgos: list[dict] = []
 
-    def hallar(nivel: str, regla: str, ruta, mensaje: str) -> None:
-        hallazgos.append({"nivel": nivel, "regla": regla, "nota": str(ruta), "mensaje": mensaje})
+    def hallar(nivel: str, regla: str, p: pathlib.Path, mensaje: str) -> None:
+        if p.is_relative_to(carpeta):
+            nota = str(p.relative_to(carpeta)) if p != carpeta else "."
+            hallazgos.append({"nivel": nivel, "regla": regla, "nota": nota, "mensaje": mensaje})
 
-    archivos = sorted(p for p in raiz.rglob("*.md")
-                      if not any(x.startswith(".") for x in p.relative_to(raiz).parts) and p.name not in NO_NOTAS
-                      and not any(i == p or i in p.parents for i in ignorar))
-    notas: dict[str, dict] = {}
-    for p in archivos:
-        rel = p.relative_to(raiz)
-        datos, cuerpo = frontmatter(p.read_text(errors="replace"))
-        if p.name == "README.md":
-            # Un README es puerta de entrada salvo que sea el Mapa de su carpeta.
-            if not datos or datos.get("tipo") != "mapa":
-                continue
-            id_ = f"mapa:{rel.parent}"
+    notas: dict[pathlib.Path, dict] = {}
+    por_nombre: dict[str, list[pathlib.Path]] = {}
+    for p in _archivos(base, ignorar):
+        texto = p.read_text()
+        datos, cuerpo = frontmatter(texto)
+        if datos is None and p.name in PUERTAS:
+            datos = {}  # una puerta: no es nota, pero sus enlaces cuentan
+            puerta = True
         else:
-            id_ = p.stem
-        if id_ in notas:
-            hallar("error", "id-duplicado", rel, f"otra nota se llama igual: {notas[id_]['ruta']}")
-            continue
-        notas[id_] = {"ruta": rel, "datos": datos, "cuerpo": cuerpo, "path": p}
+            puerta = False
+        notas[p] = {"datos": datos, "cuerpo": cuerpo, "puerta": puerta, "enlaces": set()}
+        por_nombre.setdefault(p.stem, []).append(p)
 
-    # Un [[enlace]] de Obsidian resuelve contra todo el vault, no solo contra esta carpeta.
-    vault = next((a for a in [raiz, *raiz.parents] if (a / ".obsidian").is_dir()), base)
-    todos = [x for x in vault.rglob("*") if x.is_file() and not any(y.startswith(".") for y in x.relative_to(vault).parts)]
-    existentes = {x.stem if x.suffix == ".md" else x.name for x in todos}
-    fuera = {x.stem: x for x in todos if x.suffix == ".md" and x.name not in NO_NOTAS | {"README.md"}
-             and raiz not in x.resolve().parents}
-    for i, n in notas.items():
-        if i in fuera:
-            hallar("error", "id-duplicado", n["ruta"], f"otra nota del vault se llama igual: {fuera[i].relative_to(vault)}")
-
-    por_ruta = {n["path"].resolve(): i for i, n in notas.items()}
-    enlazadas_desde_mapa: set[str] = set()
-    for id_, n in notas.items():
-        d, rel = n["datos"], n["ruta"]
-        sin_codigo = re.sub(r"```.*?```|`[^`\n]*`", "", n["cuerpo"], flags=re.S)
-        wikis = {x.strip().rstrip("\\") for x in WIKILINK.findall(sin_codigo)}
-        for w in wikis:
-            if pathlib.Path(w).name not in existentes and pathlib.Path(w).stem not in existentes:
-                hallar("error", "enlace-roto", rel, f"no existe [[{w}]]")
-        enlaces = {pathlib.Path(w).stem for w in wikis if pathlib.Path(w).suffix in ("", ".md")}
+    for p, n in notas.items():
+        sin_codigo = CODIGO.sub("", n["cuerpo"])
         for destino in MDLINK.findall(sin_codigo):
-            if "://" in destino:
+            if "://" in destino or destino.startswith("/"):
                 continue
-            objetivo = (n["path"].parent / destino).resolve()
-            if not objetivo.exists():
-                hallar("error", "enlace-roto", rel, f"no existe {destino}")
-            enlaces.add(por_ruta.get(objetivo, pathlib.Path(destino).stem))
-        n["enlaces"] = enlaces
-        for ruta in sorted(set(re.findall(r"`([\w./-]+\.md)`(?!\]\()", n["cuerpo"]))):
-            if pathlib.Path(ruta).name in NO_NOTAS:
-                continue
-            if any(c.exists() for c in (n["path"].parent / ruta, raiz / ruta)):
-                hallar("aviso", "ruta-sin-enlace", rel, f"`{ruta}` es una nota: va como enlace para que se chequee")
+            objetivo = (p.parent / urllib.parse.unquote(destino)).resolve()
+            if objetivo.exists():
+                n["enlaces"].add(objetivo)
+            elif not any(objetivo.is_relative_to(i) for i in ignorar):
+                hallar("error", "enlace-roto", p, f"`{destino}` no existe")
+        for destino in WIKILINK.findall(sin_codigo):
+            candidatos = por_nombre.get(destino.strip(), [])
+            if candidatos:
+                n["enlaces"].update(candidatos)
+            else:
+                hallar("error", "enlace-roto", p, f"`[[{destino}]]` no existe")
 
-        palabras = len([w for w in sin_codigo.split() if re.search(r"\w", w)])
-        tabla = (d or {}).get("tipo") == "ficha"
-        if (d or {}).get("tipo") not in MAPAS and not tabla and palabras > palabras_max:
-            hallar("aviso", "candidata-a-partir", rel, f"{palabras} palabras: ¿responde una sola pregunta?")
-        if d is None or (d.get("tipo") not in TIPOS and not d.get("resumen")):
-            hallar("aviso", "formato-anterior", rel, "no sigue el método todavía (modo `existente`)")
-            n["datos"] = None
+    entradas = {p for p, n in notas.items() if not n["puerta"] and _es_entrada(p, n["datos"] or {}, base)}
+    con_entrada = {p.parent for p in entradas} | {p.parent for p, n in notas.items() if n["puerta"] and p.name == "README.md"}
+    enlazadas_desde_entrada = {e for p in entradas | {p for p, n in notas.items() if n["puerta"]}
+                               for e in notas[p]["enlaces"] if e != p}
+    pendientes = 0
+
+    for p, n in notas.items():
+        if n["puerta"]:
             continue
-        if not id_.startswith("mapa:") and not NOMBRE.fullmatch(id_):
-            hallar("aviso", "nombre-de-archivo", rel, "el nombre va en kebab-case con letras ASCII")
-        if d.get("estado") == "vigente" and d.get("tipo") != "decision" and not d.get("revisado"):
-            hallar("error", "campo-faltante", rel, "falta `revisado` (obligatorio si está vigente)")
-        if d.get("estado") == "borrador":
-            hallar("aviso", "pendiente-de-revision", rel, "borrador: espera que una persona lo lea y lo confirme")
-        if d.get("estado") == "borrador" and d.get("revisado"):
-            hallar("aviso", "borrador-revisado", rel, "un borrador no tiene `revisado`: se pone al pasar a vigente")
-        primera = _primera_linea(n["cuerpo"])
-        if d.get("resumen") and d.get("tipo") != "decision" and _normal(primera) != _normal(d["resumen"]):
-            hallar("aviso", "resumen-distinto", rel, "la primera línea no es igual a `resumen`")
-        texto = n["cuerpo"].lower()
-        halladas = sorted({m for m in MULETILLAS if re.search(rf"\b{re.escape(m)}\b", texto)})
-        if halladas:
-            hallar("aviso", "muletilla", rel, ", ".join(halladas))
+        d = n["datos"]
+        if d is None:
+            hallar("error", "sin-frontmatter", p, "falta el frontmatter")
+            continue
         for campo in OBLIGATORIOS:
             if not d.get(campo):
-                hallar("error", "campo-faltante", rel, f"falta `{campo}`")
-        for campo, validos in (("tipo", TIPOS), ("estado", ESTADOS), ("idioma", IDIOMAS),
-                               ("estabilidad", set(REVISION_DIAS)), ("autoria", AUTORIAS), ("area", AREAS)):
-            if d.get(campo) and d[campo] not in validos:
-                hallar("error", "valor-invalido", rel, f"`{campo}: {d[campo]}` no es uno de {sorted(validos)}")
-        for rel_ in RELACIONES:
-            for otro in _lista(d.get(rel_)):
-                if otro not in notas and otro not in existentes:
-                    hallar("error", "relacion-rota", rel, f"`{rel_}` apunta a `{otro}`, que no existe")
-        if d.get("reemplazado_por") and d["reemplazado_por"] not in notas and d["reemplazado_por"] not in existentes:
-            hallar("error", "relacion-rota", rel, f"`reemplazado_por` apunta a `{d['reemplazado_por']}`, que no existe")
-        if d.get("reemplazado_por") and d.get("estado") != "obsoleto":
-            hallar("aviso", "reemplazo-sin-obsoleto", rel, "tiene `reemplazado_por` pero no está `obsoleto`")
-        if d.get("estado") == "obsoleto" and not d.get("reemplazado_por"):
-            hallar("aviso", "obsoleto-sin-reemplazo", rel, "obsoleto sin `reemplazado_por`: ¿se puede borrar?")
-        if d.get("tipo") in MAPAS:
-            enlazadas_desde_mapa |= enlaces
-        if d.get("tipo") in {"concepto", "falla", "ficha", "decision", "metrica"} and not _lista(d.get("fuentes")):
-            hallar("aviso", "sin-fuentes", rel, "no cita fuentes")
-        if d.get("tipo") != "decision" and d.get("estado") != "obsoleto" and d.get("revisado"):
+                hallar("error", "campo-faltante", p, f"falta `{campo}`")
+        if d.get("estado") and d["estado"] not in ESTADOS:
+            hallar("error", "valor-invalido", p, f"`estado: {d['estado']}`")
+        if d.get("estabilidad") and d["estabilidad"] not in ESTABILIDADES:
+            hallar("error", "valor-invalido", p, f"`estabilidad: {d['estabilidad']}`")
+        if p.name != "README.md" and not NOMBRE.fullmatch(p.stem):
+            hallar("error", "nombre-de-archivo", p, "el nombre va en kebab-case ASCII")
+
+        revisado = None
+        if d.get("revisado"):
             try:
                 revisado = dt.date.fromisoformat(str(d["revisado"]))
             except ValueError:
-                hallar("error", "valor-invalido", rel, f"`revisado: {d['revisado']}` no es AAAA-MM-DD")
-            else:
-                dias = REVISION_DIAS.get(d.get("estabilidad"), 180)
+                hallar("error", "valor-invalido", p, f"`revisado: {d['revisado']}`")
+        if d.get("estado") == "borrador":
+            pendientes += p.is_relative_to(carpeta)
+        if d.get("estado") == "vigente":
+            if not d.get("revisado"):
+                hallar("aviso", "vigente-sin-revisado", p, "vigente sin `revisado`: ¿quién la confirmó y cuándo?")
+            elif revisado:
+                dias = REVISION_DIAS.get(d.get("estabilidad"), 365)
                 if (hoy - revisado).days > dias:
-                    hallar("aviso", "revision-vencida", rel, f"revisada hace {(hoy - revisado).days} días (cada {dias})")
+                    hallar("aviso", "revision-vencida", p, f"revisada el {revisado}; vence a los {dias} días")
+        if d.get("reemplazado_por"):
+            destino = (p.parent / str(d["reemplazado_por"])).resolve()
+            if not destino.exists() and not por_nombre.get(pathlib.Path(str(d["reemplazado_por"])).stem):
+                hallar("error", "enlace-roto", p, f"`reemplazado_por: {d['reemplazado_por']}` no existe")
+        if p not in entradas and not _lista(d.get("fuentes")):
+            hallar("aviso", "sin-fuentes", p, "sin `fuentes`: ¿de dónde sale lo que afirma?")
+        if d.get("resumen") and "adr" not in {x.lower() for x in p.parts}:
+            primera = _primera_linea(n["cuerpo"])
+            if primera and _normal(primera) != _normal(str(d["resumen"])):
+                hallar("aviso", "resumen-distinto", p, "la primera línea no es igual al `resumen`")
 
-    for i, n in notas.items():
-        d = n["datos"] or {}
-        # El Mapa en la raíz de lo que se revisa (README.md de la base) no tiene padre: es la entrada.
-        if d.get("tipo") == "mapa" and not _lista(d.get("parte_de")) and i not in MAPAS_RAIZ | {"mapa:."} \
-                and not any(i in (o.get("enlaces") or set()) for j, o in notas.items()
-                            if j != i and (o["datos"] or {}).get("tipo") in MAPAS):
-            hallar("aviso", "mapa-sin-padre", n["ruta"], "ningún Mapa padre: no se llega desde el Mapa raíz")
+        es_raiz = p.parent == base and p in entradas
+        if d.get("estado") != "obsoleto" and not es_raiz and p not in enlazadas_desde_entrada:
+            hallar("aviso", "huerfana", p, "ninguna entrada la enlaza")
 
-    for i, n in notas.items():
+        cuerpo = CODIGO.sub("", n["cuerpo"])
+        titulos = {t.strip().lower() for t in re.findall(r"^#{2,3} (.+)$", cuerpo, re.M)}
+        genericos = sorted(titulos & TITULOS_PLANTILLA)
+        if len(genericos) >= 2:
+            hallar("aviso", "titulos-de-plantilla", p,
+                   f"títulos que servirían en cualquier nota: {', '.join(genericos)}")
+        palabras = len(re.findall(r"\w+", cuerpo))
+        if d.get("estabilidad") != "volatil" and palabras > palabras_max:
+            hallar("aviso", "larga", p, f"{palabras} palabras: ¿adentro hay otro sujeto que se enlaza solo?")
+        bajo = cuerpo.lower()
+        usadas = [m for m in MULETILLAS if re.search(rf"\b{re.escape(m)}\b", bajo)]
+        if usadas:
+            hallar("aviso", "muletilla", p, ", ".join(usadas))
+
+    carpetas = {p.parent for p, n in notas.items() if not n["puerta"] and n["datos"] is not None}
+    for c in sorted(carpetas):
+        if c != base and c not in con_entrada:
+            hallar("aviso", "carpeta-sin-entrada", c, f"falta `{c.name.lower()}.md` con lo que hay adentro")
+
+    if pendientes:
+        hallar("aviso", "pendiente-de-revision", carpeta, f"{pendientes} notas en borrador esperan que una persona las lea")
+
+    for p, n in notas.items():
         d = n["datos"] or {}
         if d.get("estado") != "vigente" or not d.get("revisado"):
             continue
         for fuente in _lista(d.get("fuentes")):
-            cambio = _ultimo_commit(raiz, fuente)
+            cambio = _ultimo_commit(base, fuente)
             if cambio and cambio > str(d["revisado"]):
-                hallar("aviso", "fuente-cambiada", n["ruta"], f"`{fuente}` cambió el {cambio}, después de `revisado`")
+                hallar("aviso", "fuente-cambiada", p, f"`{fuente}` cambió el {cambio}, después de `revisado`")
 
     if desde:
-        cambiados = _cambiados(raiz, desde)
-        top = _top(raiz)
-        for i, n in notas.items():
+        cambiados = _cambiados(base, desde)
+        top = _top(base)
+        for p, n in notas.items():
             d = n["datos"] or {}
-            propia = str(n["path"].resolve().relative_to(top)) if top else None
+            propia = str(p.relative_to(top)) if top else None
             if d.get("estado") != "vigente" or propia in cambiados:
                 continue
             tocadas = [f for f in _lista(d.get("fuentes")) if re.split(r"[:#]", f, maxsplit=1)[0] in cambiados]
             if tocadas:
-                hallar("aviso", "doc-sin-actualizar", n["ruta"], f"cambió {', '.join(tocadas)} y la nota no: ¿sigue bien?")
-
-    # Relaciones: jerarquía sin ciclos, `requiere` sin ciclos ni redundancias, `relacionado` fuera de la jerarquía.
-    jerarquia = {i: [p for r in JERARQUIA for p in _lista((n["datos"] or {}).get(r)) if p in notas]
-                 for i, n in notas.items()}
-    requiere = {i: [p for p in _lista((n["datos"] or {}).get("requiere")) if p in notas] for i, n in notas.items()}
-    for regla, grafo, nombre in (("ciclo", jerarquia, "la jerarquía"), ("ciclo-requiere", requiere, "`requiere`")):
-        c = _ciclo(grafo)
-        if c:
-            hallar("error", regla, notas[c[0]]["ruta"], f"{nombre} vuelve sobre sí misma: {' → '.join(c)}")
-    ancestros = {i: _alcanzables(jerarquia, i) for i in notas}
-    for i, n in notas.items():
-        d = n["datos"] or {}
-        for otro in _lista(d.get("relacionado")):
-            if otro not in notas:
-                continue
-            if otro in ancestros[i] or i in ancestros[otro]:
-                hallar("error", "relacionado-en-jerarquia", n["ruta"], f"`{otro}` ya está en su jerarquía")
-            elif i not in _lista((notas[otro]["datos"] or {}).get("relacionado")):
-                hallar("aviso", "relacionado-asimetrico", n["ruta"], f"`{otro}` no la tiene en su `relacionado`")
-        for otro in requiere[i]:
-            if otro in _alcanzables(requiere, i, saltando=otro):
-                hallar("aviso", "requiere-redundante", n["ruta"], f"`{otro}` ya se requiere por otro camino")
-        if d and d.get("estado") != "obsoleto" and d.get("tipo") not in MAPAS and i not in enlazadas_desde_mapa:
-            hallar("aviso", "huerfana", n["ruta"], "ningún Mapa ni Ruta la enlaza")
-    con_mapa = {n["path"].parent for n in notas.values() if (n["datos"] or {}).get("tipo") == "mapa"}
-    for carpeta in sorted({n["path"].parent for n in notas.values() if n["datos"]} - con_mapa):
-        hallar("aviso", "tema-sin-mapa", carpeta.relative_to(raiz) if carpeta != raiz else ".", "la carpeta no tiene Mapa")
-
-    _revisar_temas(raiz, notas, hallar)
+                hallar("aviso", "doc-sin-actualizar", p, f"cambió {', '.join(tocadas)} y la nota no: ¿sigue bien?")
     return hallazgos
 
 
-def _revisar_temas(raiz: pathlib.Path, notas: dict, hallar) -> None:
-    """Lo propio de los temas hechos con el modo `nuevo`: los que tienen `ALCANCE.md`.
-
-    Cada nota se mide contra el `ALCANCE.md` de su tema (el más cercano hacia arriba), así dos temas
-    pueden usar los mismos ids de pregunta (`P1`, `E1`) sin taparse.
-    """
-    alcances = sorted(p for p in raiz.rglob("ALCANCE.md") if not any(x.startswith(".") for x in p.relative_to(raiz).parts))
-    if not alcances:
-        return
-    preguntas: dict[pathlib.Path, set[str]] = {}
-    volatiles: dict[pathlib.Path, list[str]] = {}
-    for a in alcances:
-        fm, cuerpo = frontmatter(a.read_text(errors="replace"))
-        if fm is None:
-            hallar("error", "campo-faltante", a.relative_to(raiz), "el ALCANCE.md no tiene frontmatter")
-            fm = {}
-        if not fm.get("aprobado"):
-            hallar("aviso", "alcance-sin-aprobar", a.relative_to(raiz), "falta `aprobado`: la persona no aprobó el alcance")
-        volatiles[a] = [v for v in _lista(fm.get("volatiles")) if v]
-        preguntas[a] = set(PREGUNTA.findall(cuerpo))
-    respondidas: dict[pathlib.Path, set[str]] = {a: set() for a in alcances}
-    umbral: dict[pathlib.Path, int] = {a: 0 for a in alcances}
-    crudos: dict[pathlib.Path, str] = {}
-    for n in notas.values():
-        d = n["datos"]
-        a = _alcance_de(n["path"], raiz)
-        if not d or not a:
-            continue
-        for p in _lista(d.get("responde")):
-            if p not in preguntas[a]:
-                hallar("error", "responde-inexistente", n["ruta"], f"{p} no está en {a.relative_to(raiz)}")
-            respondidas[a].add(p)
-        if d.get("tipo") not in (None, "mapa") and not d.get("area"):
-            hallar("error", "campo-faltante", n["ruta"], "falta `area` (el tema tiene ALCANCE.md)")
-        if str(d.get("umbral", "")).lower() == "true":
-            umbral[a] += 1
-        if d.get("area") in NUCLEO and d.get("estabilidad") == "estable":
-            texto = f"{_h1(n['cuerpo'])} {d.get('resumen', '')}"
-            for v in volatiles[a]:
-                if re.search(rf"(?<!\w){re.escape(v)}(?!\w)", texto, re.I):
-                    hallar("error", "volatil-en-nucleo", n["ruta"], f"el título o el resumen nombran «{v}»")
-            for patron, que in ((VERSION, "una versión"), (PRECIO, "un precio")):
-                m = patron.search(texto)
-                if m:
-                    hallar("error", "volatil-en-nucleo", n["ruta"], f"el título o el resumen nombran {que}: «{m.group(0)}»")
-        investigacion = a.parent / ".investigacion"
-        if investigacion.is_dir():
-            if a not in crudos:
-                crudos[a] = _normal_cifras(" ".join(f.read_text(errors="replace") for f in investigacion.rglob("*.md")))
-            faltan = sorted(c for c in _cifras(n["cuerpo"])
-                            if not re.search(rf"(?<![\d.,]){re.escape(c)}(?![\d]|[.,]\d)", crudos[a]))
-            if faltan:
-                hallar("aviso", "cifra-sin-evidencia", n["ruta"],
-                       f"no aparecen en .investigacion/: {', '.join(faltan[:8])}{' …' if len(faltan) > 8 else ''}")
-    for a in alcances:
-        for p in sorted(preguntas[a] - respondidas[a], key=lambda x: (x[0], int(x[1:]))):
-            hallar("error", "pregunta-sin-nota", a.relative_to(raiz), f"ninguna nota responde {p}")
-        if not (UMBRAL[0] <= umbral[a] <= UMBRAL[1]):
-            hallar("aviso", "umbral", a.relative_to(raiz), f"hay {umbral[a]} conceptos umbral; van de {UMBRAL[0]} a {UMBRAL[1]}")
-
-
-def _cifras(cuerpo: str) -> set[str]:
-    """Las cifras que afirma el cuerpo, sin bloques de código ni URLs, normalizadas."""
-    texto = re.sub(r"```.*?```|https?://\S+|\]\([^)]*\)", " ", cuerpo, flags=re.S)
-    salida = set()
-    for m in CIFRA.finditer(texto):
-        salida.add(_normal_cifras(m.group(1) or m.group(3)))
-    return salida
-
-
-def _normal_cifras(texto: str) -> str:
-    return re.sub(r"(\d),(\d)", r"\1.\2", texto)
-
-
-def _h1(cuerpo: str) -> str:
-    m = re.search(r"^# (.+)$", cuerpo, re.M)
-    return m.group(1).strip() if m else ""
-
-
-def _top(raiz: pathlib.Path) -> pathlib.Path | None:
+def _top(carpeta: pathlib.Path) -> pathlib.Path | None:
     try:
-        return pathlib.Path(subprocess.run(["git", "-C", str(raiz), "rev-parse", "--show-toplevel"],
+        return pathlib.Path(subprocess.run(["git", "-C", str(carpeta), "rev-parse", "--show-toplevel"],
                                            capture_output=True, text=True, check=True).stdout.strip())
     except (OSError, subprocess.CalledProcessError):
         return None
 
 
-def _cambiados(raiz: pathlib.Path, desde: str) -> set[str]:
+def _cambiados(carpeta: pathlib.Path, desde: str) -> set[str]:
     """Los archivos que cambiaron desde la base común con `desde`, relativos a la raíz del repo."""
-    r = subprocess.run(["git", "-C", str(raiz), "diff", "--name-only", f"{desde}...HEAD"],
+    r = subprocess.run(["git", "-C", str(carpeta), "diff", "--name-only", f"{desde}...HEAD"],
                        capture_output=True, text=True)
     if r.returncode != 0:
         raise SystemExit(f"revisar.py: --desde {desde}: {r.stderr.strip() or 'git diff falló'}")
     return set(r.stdout.split())
 
 
-def _ultimo_commit(raiz: pathlib.Path, fuente: str) -> str | None:
+def _ultimo_commit(carpeta: pathlib.Path, fuente: str) -> str | None:
     """La fecha (AAAA-MM-DD) del último commit que tocó una fuente que es un archivo del repo."""
     if "://" in fuente:
         return None
     ruta = re.split(r"[:#]", fuente.strip(), maxsplit=1)[0]
-    top = _top(raiz)
+    top = _top(carpeta)
     if not top or not ruta or not (top / ruta).exists():
         return None
-    fecha = subprocess.run(["git", "-C", str(top), "log", "-1", "--format=%cs", "--", ruta],
+    fecha = subprocess.run(["git", "-C", str(top), "log", "-1", "--format=%as", "--", ruta],
                            capture_output=True, text=True).stdout.strip()
     return fecha or None
 
@@ -454,7 +298,7 @@ def _ultimo_commit(raiz: pathlib.Path, fuente: str) -> str | None:
 def _primera_linea(cuerpo: str) -> str:
     """El primer párrafo después del H1."""
     tras_h1 = re.split(r"^# .*$", cuerpo, maxsplit=1, flags=re.M)[-1]
-    return next((p for p in re.split(r"\n\s*\n", tras_h1.strip()) if p.strip()), "")
+    return next((x for x in re.split(r"\n\s*\n", tras_h1.strip()) if x.strip()), "")
 
 
 def _normal(texto: str) -> str:
@@ -477,7 +321,7 @@ def main() -> int:
         print(json.dumps(hallazgos, ensure_ascii=False, indent=2))
     else:
         for h in sorted(hallazgos, key=lambda h: (h["nivel"], h["regla"], h["nota"])):
-            print(f"{h['nivel']:5} {h['regla']:24} {h['nota']}: {h['mensaje']}")
+            print(f"{h['nivel']:5} {h['regla']:22} {h['nota']}: {h['mensaje']}")
         errores = sum(h["nivel"] == "error" for h in hallazgos)
         print(f"\n{errores} errores, {len(hallazgos) - errores} avisos", file=sys.stderr)
     return 1 if any(h["nivel"] == "error" for h in hallazgos) else 0

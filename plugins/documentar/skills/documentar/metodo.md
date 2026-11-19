@@ -1,207 +1,129 @@
 # Método
 
-Cómo se parte una base de conocimiento, qué tipos de nota tiene, cómo se enlazan, cómo se escribe y cómo se mantiene. Vale para un vault de Obsidian, para los docs de un repo y para un tema nuevo. El porqué de cada regla está en el research (`docs/research/` del repo `the-software-co/skills`). Para los docs de un repo con código, sumá [`sistemas.md`](sistemas.md).
+Cómo se estructura, se escribe y se mantiene una base. Vale para un tema general, para los docs de un repo y para el saber de la organización. Para los docs de un repo con código, sumá [`sistemas.md`](sistemas.md).
 
-## Principios
+## Capas
 
-1. **Una nota, una pregunta.** Cada nota responde una sola pregunta, entera, y se entiende sola.
-2. **El tema se parte en áreas; el modo va adentro.** Cada nota está en un solo modo: explica, guía, decide o se consulta.
-3. **El núcleo no nombra productos.** Un concepto estable no cita versiones, marcas, precios ni pantallas. Eso va a una `ficha` fechada que enlaza al concepto que implementa.
-4. **Una sola fuente de verdad.** Cada cosa se explica en un lugar y el resto enlaza. Cada valor vive en una sola nota.
-5. **Puente antes que copia.** Si afuera hay una explicación canónica, la nota da su propia definición y su modelo mental cortos y manda al recurso: cuál, qué parte y en qué fijarse.
-6. **Relaciones con tipo**, declaradas en el frontmatter y con su porqué en el cuerpo.
-7. **Lo disputado se escribe como disputa**, con cada posición y su evidencia.
-8. **Las preguntas mandan.** En un tema nuevo, el alcance es la lista de preguntas aprobada, y una nota que no responde ninguna sobra.
-9. **Completa, no rellena.** Un área sin contenido sustantivo no se crea, y un hueco sin fuente queda visible.
-10. **Toda nota tiene dueño y fecha de revisión.** Lo que nadie revisa se marca o se borra.
+Un tema se documenta como se analiza un sistema: se lo descompone en capas de abstracción, de lo general a lo particular. La estructura sale del sujeto, no de una lista de tipos de pregunta.
+
+| Capa | Qué es | Dónde vive | Cambia |
+|---|---|---|---|
+| **El todo** | Qué es el sujeto, qué problema resuelve, dónde termina y, sobre todo, cuáles son sus partes y cómo se conectan entre sí | La entrada del tema, `<Tema>/<tema>.md` | casi nunca |
+| **Las verticales** | Las grandes partes en que el sujeto se divide | Una carpeta cada una, con su entrada `<Vertical>/<vertical>.md` | poco |
+| **Los componentes** | Las piezas de cada vertical: conceptos, mecanismos, prácticas, decisiones | Una nota cada uno, dentro de su vertical | a veces |
+| **Lo operativo** | Herramientas, plataformas, valores, cifras, comandos | Fichas fechadas en la carpeta de su vertical, enlazadas desde el componente que implementan | seguido |
+
+Reglas para armar el árbol:
+
+- **Las verticales son partes del sujeto, no temas de conversación.** Responden "¿de qué está hecho?" o "¿en qué etapas o subsistemas se divide?". Kubernetes se divide en plano de control, nodos, cargas de trabajo, red, almacenamiento y seguridad; un gecko leopardo, en biología, recinto, alimentación, salud, reproducción y conducta; el marketing, en mercado y cliente, propuesta, marca, canales, comunicación y medición. "Debates", "B2B" o "Escuelas" no son partes: son cortes transversales.
+- **Usá la división del propio dominio.** Si el campo ya se clasifica a sí mismo (la filogenia, los objetos de una API, el índice canónico de un libro de texto), las verticales la siguen.
+- **De cuatro a ocho verticales en un tema general.** Con menos, el todo no está descompuesto; con más, mezclaste niveles. Un sistema tiene las que tiene.
+- **La profundidad la pone el sujeto.** Una vertical tiene subcarpetas solo si sus componentes tienen partes propias que se estudian por separado. No hay un número fijo de niveles, y dos verticales pueden tener profundidades distintas.
+- **Lo transversal va a `Fundamentos/`**: historia, escuelas, fuentes y glosario del tema. No es una vertical, porque no es una parte del sujeto.
+- **Cada cosa en un solo lugar.** Una nota vive en la vertical de la que es parte y se enlaza desde las otras. Si una nota parece de dos verticales, o es un concepto de arriba (va al todo) o el árbol está mal cortado.
+- **Lo que cambia, abajo.** Los nombres de productos, versiones, precios y plataformas viven en la capa operativa. Las capas de arriba no los nombran: así la base no envejece cuando cambia una herramienta.
+
+## Qué dice cada capa
+
+Al escribir una nota de cualquier capa, estas son las preguntas que guían (no son títulos):
+
+- ¿Qué es y para qué existe? ¿Dónde termina y en qué se diferencia de sus vecinos?
+- ¿De qué está hecho? Eso enlaza a la capa de abajo.
+- ¿Cómo funciona y cómo se conecta con sus hermanos? Eso enlaza a los lados.
+- ¿Cómo se hace o se decide, y cómo falla?
+
+Una nota contesta las que tienen contenido. La entrada de una vertical tiene que dejar entender la vertical sin abrir sus componentes; un componente tiene que poder leerse solo.
 
 ## La nota
 
-- **Tamaño**: una idea entera, de 150 a 450 palabras de cuerpo, sin contar frontmatter ni bloques de código. `revisar.py` avisa cuando pasa de 450. Si hace falta un segundo `##` sobre otro asunto, son dos notas. Lo que no llega a unas 80 palabras propias se suma a la nota vecina. Las `ficha` y los Mapas no tienen tope.
-- **Prueba de la nota**: tiene que poder enlazarse desde otro lado sin arrastrar contexto que no hace falta. Si no se puede, se parte.
-- **Primera línea**: después del H1 va una definición de una o dos oraciones que se entiende sola, igual al `resumen`. El frontmatter la sirve a los agentes y la primera línea a quien lee. Se cambian juntas.
-- **Título**: el término que la gente usa al hablar y al buscar, en singular. Si lo corriente es el término en inglés, va en inglés ("Churn"). El otro idioma y los sinónimos van a `aliases`. Si dos cosas se llaman igual, se distinguen con un calificador: "Partición (Spark)".
-- **Archivo**: el nombre es el id, en kebab-case con letras ASCII, único en toda la base. Un id genérico ("cola", "glosario") lleva calificador ("cola-del-gecko"). El título se puede cambiar; el archivo casi nunca, porque rompería los enlaces.
-- **Idioma**: español o inglés. Si la persona no dice, se usa el de las notas del tema; si no hay notas, español. Un tema entero va en un idioma. Las claves del frontmatter quedan siempre como están acá.
+- **Una nota, un sujeto.** Cada nota trata una cosa (un componente, una vertical, el todo) y la explica entera. Se parte cuando adentro hay un sujeto que se va a enlazar desde otros lados; no se parte por tamaño.
+- **Tamaño**: lo que pida el sujeto. Una nota de 1200 palabras sobre una vertical está bien; una de 120 sobre un concepto que nadie va a enlazar se suma a su vecina. El lint avisa arriba de 1500.
+- **Primera línea**: después del H1, una definición de una o dos oraciones que se entiende sola, igual al `resumen` (el lint lo avisa). En un ADR que ya existía no hace falta.
+- **Títulos de sección**: dicen lo que dice la sección, con las palabras del tema. "Los cinco componentes", "Por qué crece por penetración", "Dónde choca con Sharp". Nunca títulos de formulario como "Por qué existe", "Cómo funciona", "No confundir con", "Para profundizar" o "Relaciones". Si un título serviría en cualquier otra nota, está mal.
+- **Título de la nota**: el término que la gente usa, en singular. Si lo corriente es en inglés, va en inglés ("Churn"); el otro idioma va en `aliases`.
+- **Archivo**: kebab-case ASCII. Las carpetas, con mayúscula inicial y guiones (`Mercado-y-cliente/`). La entrada de una carpeta se llama como ella en minúscula (`Mercado-y-cliente/mercado-y-cliente.md`), salvo en los docs de un repo, donde es `README.md`.
+- **Idioma**: el de las notas del tema; si no hay, el de la persona. Un tema va en un idioma.
 
-## Áreas
+## Enlaces
 
-En un tema nuevo, toda nota lleva un `area`. Las notas de una base anterior pueden no tenerla. Las áreas son un punto de partida: un tema usa las que tienen contenido.
-
-| `area` | Responde | Estabilidad típica |
-|---|---|---|
-| `que-es` | ¿Qué es, para qué existe, dónde termina y en qué se diferencia de sus vecinos? | estable |
-| `como-funciona` | ¿Cuál es el modelo mental, el mecanismo, el principio? | estable |
-| `anatomia` | ¿De qué partes está hecho y cómo se clasifica? | estable o semi |
-| `procesos` | ¿Cómo transcurre, se desarrolla o cambia en el tiempo? | estable o semi |
-| `como-se-hace` | ¿Cómo se usa, se hace o se observa? | semi o volátil |
-| `como-se-decide` | ¿Qué criterios, trade-offs, debates y escuelas hay para elegir? | semi |
-| `como-falla` | ¿Cómo falla, cómo se diagnostica, qué se cree mal? | estable o semi |
-| `historia` | ¿De dónde viene y por qué es así hoy? | estable |
-| `ecosistema` | ¿Qué herramientas, versiones, actores y recursos hay hoy? | volátil |
-| `referencia` | ¿Cuál es el dato, la tabla o el término exacto? | mixta |
-| `ruta` | ¿En qué orden y con qué práctica se aprende? | semi |
-
-- **Taxonomía propia**: si el dominio ya se clasifica a sí mismo (la filogenia en los animales, los objetos de una API), `anatomia` sigue esa clasificación y no una inventada.
-- **Escuela**: si la persona eligió una escuela o un enfoque del campo, la base se escribe desde esa escuela, y lo que otras sostienen distinto va como disputa. Si no eligió, la base queda neutral y una nota de `como-se-decide` mapea las escuelas.
-- **Historia como hilo**: además de su área, la historia abre el modelo mental de los conceptos umbral, en una o dos oraciones.
-
-## Tipos de nota
-
-| `tipo` | Para qué | Plantilla |
-|---|---|---|
-| `mapa` | La entrada a un tema: qué hay, por dónde entrar según a qué venís, los conceptos umbral | `mapa.md` |
-| `concepto` | Qué es algo, cómo funciona, por qué es así | `concepto.md` |
-| `metrica` | Cómo se define y se calcula algo | `metrica.md` |
-| `como-hacer` | Los pasos para lograr algo | `como-hacer.md` |
-| `decision` | Cómo elegir entre alternativas, un debate abierto, o por qué se eligió algo | `decision.md` |
-| `falla` | Un modo de falla, su diagnóstico, o una concepción errónea | `falla.md` |
-| `ficha` | Lo volátil o tabular: versiones, herramientas, datos, glosario, un instrumento fijo | `ficha.md` |
-| `ruta` | La secuencia para aprender un área o el tema. Las bases anteriores la llaman `recorrido` | `ruta.md` |
-
-- Una `ficha` idealmente es un enlace comentado a la fuente real. Si copia valores, va `estabilidad: volatil` con la fecha de la copia. Un instrumento fijo (un cuestionario, una rúbrica) es `ficha` estable y va entero.
-- Una `decision` sobre algo que se eligió no se reescribe: si cambia, se escribe otra y la vieja pasa a `obsoleto` con `reemplazado_por`. Una que se propuso y no se adoptó queda en `borrador`. Si ninguna fuente registra el porqué, la nota lo dice; no se deduce.
+- **Markdown relativo**: `[texto](../Marca/capital-de-marca.md)`. Se lee en GitHub y en cualquier editor.
+- **El enlace dice la relación**: "se calcula sobre una [cohorte](cohorte.md)", no "ver [cohorte](cohorte.md)".
+- **Hacia abajo**: cada entrada enlaza todo lo que tiene adentro, con media línea de qué es. Una nota que ninguna entrada enlaza es huérfana.
+- **Hacia los lados**: un componente enlaza a sus hermanos y a otras verticales en el cuerpo, donde la relación importa. Al final puede ir una lista corta "Ver también" solo con lo que no quedó enlazado en el texto.
+- **Hacia afuera**: si existe una explicación canónica (un libro, la documentación oficial, un curso abierto), la nota da su versión corta y manda al recurso diciendo qué parte leer y en qué fijarse.
 
 ## Frontmatter
 
 ```yaml
 ---
-tipo: concepto            # obligatorio: ver Tipos
-area: como-funciona       # obligatorio en un tema con ALCANCE.md; el mapa no lleva
-resumen: >-               # obligatorio: 1-2 oraciones que se entienden solas; es la primera línea del cuerpo
+resumen: >-          # 1-2 oraciones que se entienden solas; es la primera línea del cuerpo
   ...
-estado: borrador          # obligatorio: borrador | vigente | obsoleto
-estabilidad: estable      # obligatorio: estable | semi | volatil
-dueno: matias             # obligatorio: persona o equipo que la mantiene (ver CONVENCIONES.md)
-umbral: false             # true en los 3 a 7 conceptos umbral de un tema
-responde: [P2, P7]        # ids de preguntas del ALCANCE.md
-es_un: []                 # jerarquía genérica: todo X es un Y
-parte_de: []              # jerarquía partitiva: X es una parte de Y
-instancia_de: []          # jerarquía instancial: X es un caso particular de Y
-requiere: []              # lo que hay que entender antes
-relacionado: []           # vecinos fuera de la jerarquía; va en las dos notas
-fuentes: []               # URLs, referencias o rutas de código
-aliases: []               # sinónimos, siglas, el término en otro idioma
-creado: 2026-11-18
-revisado:                 # cuando una persona confirmó la nota; vacío en borrador
-autoria: ia               # ia | mixta | humano
-idioma: es                # es | en; si falta, es
-reemplazado_por:          # id, solo si estado es obsoleto
+estado: borrador     # borrador | vigente | obsoleto
+estabilidad: estable # estable | semi | volatil
+fuentes: []          # URLs, libros con capítulo, rutas de código
+aliases: []          # opcional: sinónimos, siglas, el término en otro idioma
+dueno:               # opcional: solo si no es el de CONVENCIONES.md
+reemplazado_por:     # opcional: la ruta de la nota nueva, si está obsoleto
+creado: 2026-11-19
+revisado:            # cuando una persona la confirmó; vacío en borrador
 ---
 ```
 
-- **Ids**: las relaciones van por id. Un `README.md` con `tipo: mapa` es el Mapa de su carpeta. Un `README.md` sin frontmatter es una puerta de entrada y no es nota.
-- **`revisado`** significa que una persona la confirmó. Lo que escribe un agente entra como `borrador` y pasa a `vigente`, con `revisado` de ese día, cuando una persona lo lee y lo confirma.
-- **`autoria`**: `ia` si la escribió un agente, aunque sea a partir de material propio; `mixta` si una persona la editó; `humano` si la escribió una persona. Confirmar no es editar.
-- **`parte_de` en las bases anteriores**: antes cubría también "es un". Al tocar una nota vieja, se pasa a `es_un` lo que corresponde.
+- Lo que escribe un agente entra como `borrador` y pasa a `vigente`, con `revisado` de ese día, cuando una persona lo lee y lo confirma. Nunca se marca `vigente` sin esa confirmación.
+- Las notas de bases anteriores pueden traer más campos (`tipo`, `area`, `parte_de`, `requiere`…). Se dejan; al tocar la nota, se pueden borrar.
 
-## Relaciones
+## Lo volátil y las fichas
 
-- **Jerarquía con subtipo**: `es_un` (lagarto → reptil), `parte_de` (escama → piel), `instancia_de` (Komodo → varánido). Una nota puede tener varios padres; la red no tiene ciclos.
-- **`requiere`**: lo que hay que entender antes. Es la relación más valiosa: de ella salen las rutas. No es jerarquía: un hijo requiere a su padre solo si de verdad hay que leerlo antes. Sin ciclos, y sin aristas que ya se deducen por otro camino.
-- **`relacionado`**: asociación entre notas que no están en la misma cadena jerárquica. Un par jerárquico no puede estar también relacionado. Va en las dos notas, y cada una dice en su cuerpo por qué.
-- **En el cuerpo**: cada enlace dice qué relación expresa: "se calcula sobre una [[cohorte]]", no "ver [[cohorte]]".
-- **Sección Relaciones** al final: una línea por relación del frontmatter, con la forma `Etiqueta: enlace — por qué`. Para el sentido inverso se usa la etiqueta que lo diga: "Casos", "La usa", "Base de", "Se mide con", "Implementa".
+Una **ficha** (`estabilidad: volatil`) guarda lo que cambia: una tabla de herramientas, los valores de referencia, una plataforma, un comando. Lleva la fecha de la copia y la fuente viva, y enlaza al componente que implementa: si la herramienta muere, el componente queda. Idealmente es un enlace comentado a la fuente, no una copia.
 
-## Temas, Mapas y Rutas
-
-- **Tema**: una carpeta por asunto, no por tipo. Cada nota vive en su tema principal y se enlaza desde los Mapas de los otros. Un tema grande se parte en sub-temas: sub-carpetas con su propio Mapa.
-- **Mapa** (`tipo: mapa`): uno por carpeta. Según la base, es `<Tema>/<tema>.md` (un vault) o `README.md` (los docs de un repo o un tema sin convención). Agrupa las notas con una línea cada una que dice qué responde y cuándo leerla, enlaza los sub-Mapas y tiene `parte_de` hacia su Mapa padre. Es una lista comentada, nunca una consulta automática (como Dataview).
-- **Mapa raíz**: `conocimiento.md` en un vault, `docs/indice.md` en un repo. Enlaza el Mapa de cada tema.
-- **Ruta** (`tipo: ruta`): un orden para aprender un tema, para una audiencia. Ver "Ruta de aprendizaje".
-- Toda nota que no está `obsoleto` está enlazada desde al menos un Mapa o una Ruta; si no, es huérfana.
-
-## Núcleo y periferia
-
-- **Núcleo**: las notas `estable` de `que-es`, `como-funciona`, `anatomia`, `procesos`, `historia` y `como-falla`. Su título y su `resumen` no nombran nada de la lista `volatiles` del `ALCANCE.md`, ni versiones ni precios. El lint lo chequea.
-- **Periferia**: `ficha`, `ecosistema` y lo `volatil`. Cada ficha enlaza al concepto que implementa: si la herramienta muere, el concepto queda.
-- **Puente**: la sección "Para profundizar" recomienda un recurso, como mucho dos alternativas, y dice qué parte usar, en qué fijarse y en qué difiere de la nota. Un recurso entra si es exacto, se puede usar por partes, es estable (documentación oficial, un libro, un curso abierto mantenido) y, si existe, está en el idioma de la base. Lo volátil se enlaza a su fuente viva en vez de copiarlo.
-
-## Valores, términos y material propio
-
-- **Un valor, un lugar.** Los números de referencia (temperaturas, dosis, tamaños, frecuencias) viven en la ficha de `referencia`, con su fuente y sus desacuerdos. Una nota que necesita un valor lo enlaza o lo repite con la misma cifra y la misma fuente. Dos notas no dan valores distintos sin decir por qué.
-- **Jerga en el glosario.** Si el tema tiene términos técnicos, un glosario (`ficha` de `referencia`) los define en una línea y enlaza la nota que los desarrolla. El Mapa enlaza el glosario.
-- **Material de la persona.** Lo que la persona ya hace o escribió se contrasta con las fuentes en una sección propia al final de la nota ("En <lugar>"), separada del contenido general, para que la nota siga sirviendo a otro lector.
-
-## Material que llega
-
-- **Un libro o un curso**: va en `fuentes` de cada nota que lo usa. Sus ideas se reparten en conceptos con nombre propio. El libro no tiene nota propia, salvo que el libro mismo sea el tema.
-- **Texto de otra IA o pegado de un chat**: se queda solo el contenido. Las preguntas del asistente, los pedidos y los enlaces que no se pueden verificar se borran. El resto se verifica contra fuentes, como cualquier material.
-- **Diagramas**: en Mermaid. Uno en otro formato se redibuja en Mermaid o se borra si repite el texto.
-- **Material de un empleador**: se queda en las herramientas del empleador, con un enlace. Lo que se aprendió en general (el concepto, no el diseño del cliente) sí va a la base.
-- **Secretos**: nunca van en una nota. Van al gestor de contraseñas.
-
-## Obsoleto y disputado
-
-- **Una afirmación que cambió** no se reescribe en silencio. Si importa como historia, queda con un aviso debajo y la nueva al lado:
-
-  ```markdown
-  > [!WARNING]
-  > Obsoleto desde 2026-11: <qué cambió y dónde está lo vigente>.
-  ```
-
-- **Una afirmación disputada** lleva cada posición con su evidencia, bajo `> [!IMPORTANT]` con "Disputado:" al principio. Si el debate es central al tema, va a una nota `decision`.
-- **Una nota que ya no sirve** pasa a `obsoleto` con `reemplazado_por`, y se borra cuando nada la enlaza.
-- **Dos notas que afirman cosas incompatibles** se resuelven en una sola fuente de verdad.
-
-## Frescura
-
-| `estabilidad` | Se re-verifica cada | Qué contiene |
-|---|---|---|
-| `estable` | 12 meses | conceptos, el porqué, instrumentos fijos |
-| `semi` | 6 meses | métricas, pasos, Mapas |
-| `volatil` | 3 meses | fichas con valores copiados |
-
-Re-verificar es leer la nota contra sus `fuentes` y actualizar `revisado`. Cambiar una coma no es re-verificar. Las `decision` sobre algo elegido no se revisan: se reemplazan.
+**Un valor, un lugar**: cada cifra de referencia vive en una nota con su fuente; las demás la enlazan o la repiten igual.
 
 ## Fuentes
 
-Cómo se buscan está en [`investigacion.md`](investigacion.md). Cómo se usan en una nota:
+Cómo se buscan está en [`investigacion.md`](investigacion.md). En la nota:
 
-- **Números, fechas y citas textuales** salen literales de una fuente que la nota cita. Si el tema tiene `.investigacion/`, el lint avisa las cifras que no aparecen ahí.
-- **Afirmaciones de alto riesgo** (salud, dinero, seguridad, legal) llevan dos fuentes independientes, o dicen que hay una sola. Lo de salud aclara una vez que no reemplaza a un profesional.
-- **Lo que no se leyó entero se dice**: "según su resumen", "una sola fuente", "según criadores".
-- **Concepciones erróneas** salen de estudios, de la documentación de quien hace la cosa o de la persona; si no, se marcan como inferencia. No se inventan.
-- **Lo que no tiene fuente** se omite o queda como hueco visible: `> [!NOTE] Sin fuente todavía: <qué falta>.`
+- Los números, las fechas y las citas salen literales de una fuente que la nota cita.
+- Lo de alto riesgo (salud, dinero, seguridad, ley) lleva dos fuentes independientes, o dice que hay una sola. Lo de salud aclara que no reemplaza a un profesional.
+- Lo que no se leyó entero se dice ("según su resumen"). La inferencia propia se dice como inferencia.
+- Lo que no tiene fuente se omite o queda visible: `> [!NOTE] Sin fuente todavía: <qué falta>.`
+- Un libro o un curso no tiene nota propia: sus ideas se reparten en los componentes y el libro va en `fuentes`. La bibliografía del tema va en `Fundamentos/`.
+- **Material de la persona**: lo que ya hace o escribió se contrasta con las fuentes en una sección propia al final de la nota ("En <lugar>"), para que la nota siga sirviendo a otro lector.
+- **Texto de otra IA o de un chat**: se queda solo el contenido; las preguntas del asistente y los enlaces que no se pueden verificar se borran, y el resto se verifica como cualquier material.
+- El material de un empleador se queda en sus herramientas; a la base va solo el concepto general. Los secretos nunca.
 
-## Ruta de aprendizaje
+## Obsoleto y disputado
 
-Va si la intención incluye aprender; si no, el Mapa da un orden de lectura y nada más. Cada paso de la ruta sigue esta secuencia, adaptada al tema:
+- **Disputado**: cada posición con su evidencia, bajo `> [!IMPORTANT]`. Si el debate es central a una vertical, tiene su propia nota dentro de esa vertical (no en una carpeta de debates).
+- **Una afirmación que cambió** no se reescribe en silencio si importa como historia: `> [!WARNING] Obsoleto desde 2026-11: <qué cambió y dónde está lo vigente>.`
+- **Una nota que ya no sirve** pasa a `obsoleto`, con `reemplazado_por` si hay otra, y se borra cuando nada la enlaza.
+- **Una decisión** se escribe con la plantilla de nota, en este orden: el contexto, las alternativas con su evidencia, lo que se eligió (o que está abierta) y sus consecuencias. En los docs de un repo es un ADR. Una decisión tomada no se reescribe: se escribe otra y la vieja queda `obsoleto` con `reemplazado_por`. Si ninguna fuente registra el porqué, la nota lo dice.
 
-1. **Modelo mental**: el concepto, abierto con su historia en una oración. Enlaza a la nota y a su puente.
-2. **Predecir**: una pregunta de "qué pasa si", antes de ver la respuesta.
-3. **Ejemplo resuelto**: un caso completo, con los pasos rotulados.
-4. **Ordenar**: los pasos del ejemplo desordenados, con un paso distractor que encarna un error común.
-5. **Modificar**: el mismo caso con un cambio.
-6. **Hacerlo solo**: un caso nuevo, sin ayuda.
-7. **Cierre**: qué se aprendió, en tres líneas, y qué sigue.
+## Frescura
 
-El orden de los pasos sale de seguir `requiere` hacia atrás. En un tema que no es un procedimiento (un animal, una disciplina), predecir y hacer se vuelven identificar, explicar o predecir un comportamiento. Las respuestas van en `<details>`.
+| `estabilidad` | Se re-verifica cada | Típicamente |
+|---|---|---|
+| `estable` | 12 meses | el todo, las verticales, los conceptos |
+| `semi` | 6 meses | prácticas, métricas, decisiones abiertas |
+| `volatil` | 3 meses | fichas |
+
+Re-verificar es leer la nota contra sus fuentes y actualizar `revisado`.
+
+## Aprender
+
+Si la base es para aprender, la entrada del tema lleva un orden de lectura: de arriba hacia abajo, y dentro de cada vertical, lo que hay que entender antes primero. Si hace falta más (ejercicios, práctica), va una nota `Fundamentos/ruta-de-<tema>.md` con pasos: el modelo mental, una predicción antes de ver la respuesta, un ejemplo resuelto, un caso modificado y uno para hacer solo, con las respuestas en `<details>`.
 
 ## Visuales
 
-Un diagrama entra si muestra un mecanismo, un flujo o una jerarquía, y si sin el texto la forma sola ya comunica algo. Lo categórico va en una tabla. Los diagramas van en Mermaid, con un verbo en cada flecha y una afirmación por diagrama. El Mapa de un tema nuevo lleva el mapa de los conceptos umbral.
-
-## Destino
-
-| Dónde vive | Enlaces | Avisos |
-|---|---|---|
-| Vault de Obsidian | `[[id]]`, `[[id\|texto]]` | cualquier callout `> [!tipo]` |
-| Docs de un repo | `[texto](ruta/relativa.md)` | solo `NOTE`, `TIP`, `IMPORTANT`, `WARNING`, `CAUTION` |
-
-Una base es un vault si tiene `.obsidian/` arriba o si su `CONVENCIONES.md` lo dice. Las plantillas traen enlaces Markdown relativos: en un vault, pasalos a `[[id]]` o `[[id|texto]]`. Los enlaces relativos de Markdown se leen igual en GitHub y en Obsidian.
+La entrada del tema lleva un diagrama Mermaid del todo: las verticales y cómo se conectan, con un verbo en cada flecha. Fuera de eso, un diagrama entra si muestra un mecanismo o un flujo que el texto solo no deja ver. Lo categórico va en una tabla.
 
 ## Prosa
 
-1. **Lo principal primero**: la oración arranca con su palabra clave y el párrafo con su afirmación.
-2. **Una idea por oración**, de unas 20 palabras en promedio. **Una idea por párrafo**, de dos a cuatro oraciones.
-3. **Voz activa con sujeto visible.** Lo impersonal va con "se": "se calcula".
-4. **La condición antes de la instrucción**: "Si la cohorte es semanal, agrupá por semana".
-5. **Verbos concretos**: "decidir" y no "tomar la decisión de"; "usar" y no "utilizar".
-6. **Cifras, nombres y ejemplos** en lugar de adjetivos de importancia. El lint avisa las muletillas.
-7. **Afirmar lo verificado y atribuir lo demás**: "según Merck…". La inferencia propia se dice como inferencia.
-8. **Empezar y terminar en el contenido.** La nota habla del tema, no de sí misma: "esta nota explica…" sobra.
-9. **Formato según el contenido**: lista numerada para pasos, viñetas para elementos paralelos, tabla cuando una estructura se repite tres o más veces.
-10. **Un término por concepto** en todo el tema. Los sinónimos viven en `aliases`.
-11. **Títulos de sección** con mayúscula solo inicial y sin punto final.
-12. **Registro**: impersonal en las notas, voseo en los pasos de `como-hacer` y de la ruta. En inglés, impersonal y "you" en los pasos.
+1. **Lo principal primero**: el párrafo abre con su afirmación.
+2. **Una idea por oración**, de unas 20 palabras; párrafos de dos a cuatro oraciones.
+3. **Voz activa con sujeto visible**; lo impersonal, con "se".
+4. **Verbos concretos** y **cifras, nombres y ejemplos** en lugar de adjetivos de importancia.
+5. **Afirmar lo verificado y atribuir lo demás**: "según Sharp…".
+6. **La nota habla del tema, no de sí misma**: "esta nota explica…" sobra.
+7. **Formato según el contenido**: lista numerada para pasos, tabla cuando una estructura se repite tres o más veces. No conviertas cada párrafo en viñetas.
+8. **Un término por concepto** en todo el tema.
+9. **Registro**: impersonal en las notas, voseo en los pasos.
