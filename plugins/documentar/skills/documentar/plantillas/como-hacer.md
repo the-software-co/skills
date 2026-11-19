@@ -5,6 +5,7 @@ resumen: >-
   <Qué se logra con estos pasos y cuándo hace falta.>
 estabilidad: semi
 estado: borrador
+dueno:                    # el que dice CONVENCIONES.md
 responde: []
 es_un: []
 parte_de: []

@@ -7,6 +7,7 @@ fuera_de_alcance: []
 volatiles: []             # productos, marcas, versiones y cifras que el núcleo no nombra
 fuentes_propias: []       # rutas o links al material de la persona
 fuentes_con_acceso: []    # lo pago o interno que la persona puede pasar
+escuela:                  # la escuela o el enfoque elegido; vacío si es neutral o el campo no tiene
 subtemas: []              # carpetas de sub-temas; los que quedan para después van con "(después)"
 tamano: <N notas>
 aprobado:                 # fecha en que la persona aprobó este alcance

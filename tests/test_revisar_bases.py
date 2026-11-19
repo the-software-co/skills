@@ -1,10 +1,10 @@
-"""`revisar.py`: cada regla sobre un Vault mínimo en un directorio temporal."""
+"""`revisar.py` sobre bases con el formato de antes (vault y docs de un repo): cada regla en un directorio temporal."""
 import datetime as dt
 import importlib.util
 
 import pathlib
 
-CONOCIMIENTO = pathlib.Path(__file__).resolve().parents[1] / "plugins" / "conocimiento" / "skills" / "conocimiento"
+CONOCIMIENTO = pathlib.Path(__file__).resolve().parents[1] / "plugins" / "documentar" / "skills" / "documentar"
 
 _spec = importlib.util.spec_from_file_location("revisar", CONOCIMIENTO / "revisar.py")
 revisar = importlib.util.module_from_spec(_spec)
@@ -38,7 +38,7 @@ def test_un_tema_bien_armado_no_tiene_hallazgos(tmp_path):
                     .replace("revisado", "parte_de: []\nrevisado"),
         "cohorte.md": nota(),
     })
-    assert reglas(tema) == {("mapa-sin-padre", "datos.md")}
+    assert reglas(tema) == {("mapa-sin-padre", "datos.md"), ("sin-fuentes", "cohorte.md")}
 
 
 def test_huerfana_borrador_y_muletilla(tmp_path):

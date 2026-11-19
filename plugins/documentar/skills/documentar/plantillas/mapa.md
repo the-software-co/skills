@@ -4,6 +4,8 @@ resumen: >-
   <Qué es el tema, en una o dos oraciones.>
 estabilidad: semi
 estado: borrador
+dueno:                    # el que dice CONVENCIONES.md
+parte_de: []             # el Mapa padre (en un vault, `conocimiento`)
 responde: []             # las preguntas esenciales (E1…): las responde el tema entero
 fuentes: []
 creado:

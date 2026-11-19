@@ -4,26 +4,17 @@ Marketplace de plugins de Claude Code.
 
 ## `documentar`
 
-Documenta un tema cualquiera (Excel, Kubernetes, lagartos) como una base de conocimiento en Markdown
-en [`the-software-co/biblioteca`](https://github.com/the-software-co/biblioteca): te entrevista en tres
-rondas cortas, fija el alcance y las preguntas antes de escribir, parte el tema en áreas genéricas, separa el núcleo estable de lo volátil,
-enlaza concepto a concepto con relaciones con tipo y, si es para aprender, arma una ruta de práctica.
-El método está en
-[`metodo.md`](plugins/documentar/skills/documentar/metodo.md) y su porqué en
-[`docs/research/skill-documentar.md`](docs/research/skill-documentar.md).
+Arma y mantiene bases de conocimiento en Markdown: el vault de Obsidian `mtsdlf/conocimiento`, los docs de un repo o un tema nuevo. Tiene cinco modos:
 
-```
-/plugin install documentar@the-software-co
-python3 plugins/documentar/skills/documentar/revisar.py <carpeta del tema>
-```
+| Modo | Para qué |
+|---|---|
+| `nuevo` | Un tema desde cero. Te entrevista en tres rondas, investiga por ángulos (uno busca la posición contraria), propone el mapa de notas y escribe |
+| `ampliar` | Profundizar un tema o sumarle un sub-tema |
+| `existente` | Ordenar documentación que ya existe |
+| `volcar` | Guardar un concepto suelto o algo que aprendiste |
+| `mantener` | Encontrar lo viejo, roto, huérfano o contradictorio |
 
-## `conocimiento`
-
-Estructura conocimiento en notas atómicas enlazadas, en un vault de Obsidian o en los docs de un
-repo: una nota por pregunta, lo estable separado de lo volátil, Mapas y Recorridos curados,
-reglas de prosa y chequeos de frescura. Tiene cuatro modos: `nuevo`, `existente`, `volcar` y
-`mantener`. El método está en
-[`metodo.md`](plugins/conocimiento/skills/conocimiento/metodo.md).
+Las notas son atómicas, con relaciones con tipo (`es_un`, `parte_de`, `instancia_de`, `requiere`, `relacionado`). El núcleo estable va separado de lo volátil y cada afirmación dice de dónde sale. El método está en [`metodo.md`](plugins/documentar/skills/documentar/metodo.md), y el porqué de cada decisión, en [`docs/research/`](docs/research/).
 
 ### Instalar
 
@@ -31,29 +22,32 @@ En Claude Code:
 
 ```
 /plugin marketplace add the-software-co/skills
-/plugin install conocimiento@the-software-co
+/plugin install documentar@the-software-co
 ```
 
 Para actualizar: `/plugin marketplace update the-software-co`.
 
-En claude.ai: comprimí la carpeta
-[`plugins/conocimiento/skills/conocimiento`](plugins/conocimiento/skills/conocimiento) en un zip
-y subilo en Settings → Capabilities → Skills.
+En claude.ai: comprimí la carpeta [`plugins/documentar/skills/documentar`](plugins/documentar/skills/documentar) en un zip y subilo en Settings → Capabilities → Skills.
 
-En cualquier otro chat: `./scripts/prompt-portable.sh` imprime el método y las plantillas como un
-solo prompt para pegar.
+En cualquier otro chat: `./scripts/prompt-portable.sh` imprime el método y las plantillas como un solo prompt para pegar.
 
-### Usar
-
-Pedile a Claude que documente un tema, que ordene una carpeta de notas, que guarde un concepto o
-que revise qué quedó viejo. Para chequear una carpeta a mano:
+### Chequear una base a mano
 
 ```
-python3 plugins/conocimiento/skills/conocimiento/revisar.py <carpeta>
+python3 plugins/documentar/skills/documentar/revisar.py <carpeta> [--desde origin/main]
 ```
 
-Si tu base tiene convenciones propias (quiénes son dueños, carpetas especiales, dónde se registra
-lo volcado), escribilas en un `CONVENCIONES.md` en su raíz: el skill lo lee antes de escribir.
+Si tu base tiene convenciones propias (quiénes son dueños, carpetas especiales, dónde se registra lo que se vuelca), escribilas en un `CONVENCIONES.md` en su raíz.
+
+### Pruebas
+
+```
+python3 -m pytest tests
+```
+
+## Historia
+
+`conocimiento` (hasta la 0.4.0) se fundió en `documentar` 0.3.0: sus modos, su método y su lint viven ahí, y las bases que la usaban siguen pasando el lint sin cambios.
 
 ## Licencia
 

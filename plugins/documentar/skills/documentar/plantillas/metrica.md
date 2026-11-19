@@ -1,5 +1,6 @@
 ---
 tipo: metrica
+area: como-funciona
 resumen: >-
   <Qué mide, sobre quién y en qué período, en una o dos oraciones.>
 estado: borrador
@@ -7,11 +8,13 @@ estabilidad: semi
 dueno:
 revisado:
 creado:
-autoria:
-idioma: es
+autoria: ia
 fuentes: []
 aliases: []
+responde: []
+es_un: []
 parte_de: []
+instancia_de: []
 requiere: []
 relacionado: []
 ---
@@ -37,7 +40,7 @@ relacionado: []
 
 ## Dónde se calcula
 
-<Enlace al modelo, la consulta o el dashboard que la calcula. Si es Conocimiento general, enlace
+<Enlace al modelo, la consulta o el dashboard que la calcula. Si es un concepto general, enlace
 al como-hacer o a la ficha que muestra cómo se calcula.>
 
 ## Contexto para agentes
