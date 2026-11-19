@@ -42,7 +42,7 @@ Una nota contesta las que tienen contenido. La entrada de una vertical tiene que
 - **Primera línea**: después del H1, una definición de una o dos oraciones que se entiende sola, igual al `resumen` (el lint lo avisa). En un ADR que ya existía no hace falta.
 - **Títulos de sección**: dicen lo que dice la sección, con las palabras del tema. "Los cinco componentes", "Por qué crece por penetración", "Dónde choca con Sharp". Nunca títulos de formulario como "Por qué existe", "Cómo funciona", "No confundir con", "Para profundizar" o "Relaciones". Si un título serviría en cualquier otra nota, está mal.
 - **Título de la nota**: el término que la gente usa, en singular. Si lo corriente es en inglés, va en inglés ("Churn"); el otro idioma va en `aliases`.
-- **Archivo**: kebab-case ASCII. Las carpetas, con mayúscula inicial y guiones (`Mercado-y-cliente/`). La entrada de una carpeta se llama como ella en minúscula (`Mercado-y-cliente/mercado-y-cliente.md`), salvo en los docs de un repo, donde es `README.md`.
+- **Archivo**: kebab-case ASCII. Las carpetas, con mayúscula inicial y guiones (`Mercado-y-cliente/`). La entrada de una carpeta se llama como ella en minúscula (`Mercado-y-cliente/mercado-y-cliente.md`), salvo en los docs de un repo, donde es `README.md`. Como los nombres de archivo son únicos en la base, una carpeta que se repite entre temas lleva el calificador en la entrada y no en la carpeta: `Fundamentos/fundamentos-de-marketing.md`.
 - **Idioma**: el de las notas del tema; si no hay, el de la persona. Un tema va en un idioma.
 
 ## Enlaces
