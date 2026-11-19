@@ -222,7 +222,7 @@ def revisar(raiz: pathlib.Path, hoy: dt.date, desde: str | None = None) -> list[
                 hallar("error", "enlace-roto", rel, f"no existe {destino}")
             enlaces.add(por_ruta.get(objetivo, pathlib.Path(destino).stem))
         n["enlaces"] = enlaces
-        for ruta in sorted(set(re.findall(r"`([\w./-]+\.md)`", n["cuerpo"]))):
+        for ruta in sorted(set(re.findall(r"`([\w./-]+\.md)`(?!\]\()", n["cuerpo"]))):
             if pathlib.Path(ruta).name in NO_NOTAS:
                 continue
             if any(c.exists() for c in (n["path"].parent / ruta, raiz / ruta)):
@@ -284,7 +284,8 @@ def revisar(raiz: pathlib.Path, hoy: dt.date, desde: str | None = None) -> list[
 
     for i, n in notas.items():
         d = n["datos"] or {}
-        if d.get("tipo") == "mapa" and not _lista(d.get("parte_de")) and i not in MAPAS_RAIZ \
+        # El Mapa en la raíz de lo que se revisa (README.md de la base) no tiene padre: es la entrada.
+        if d.get("tipo") == "mapa" and not _lista(d.get("parte_de")) and i not in MAPAS_RAIZ | {"mapa:."} \
                 and not any(i in (o.get("enlaces") or set()) for j, o in notas.items()
                             if j != i and (o["datos"] or {}).get("tipo") in MAPAS):
             hallar("aviso", "mapa-sin-padre", n["ruta"], "ningún Mapa padre: no se llega desde el Mapa raíz")
