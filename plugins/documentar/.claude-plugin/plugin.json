@@ -1,7 +1,7 @@
 {
   "name": "documentar",
   "description": "Arma y mantiene bases de conocimiento en Markdown en git (un tema general, los docs de un repo o el saber de la organización): descompone el sujeto en capas (el todo, sus verticales, sus componentes, lo operativo), alinea en un solo mensaje a partir del contexto, investiga por vertical y chequea con un lint.",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "author": {
     "name": "The Software Co"
   },
