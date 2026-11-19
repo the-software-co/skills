@@ -211,7 +211,8 @@ def revisar(carpeta: pathlib.Path, hoy: dt.date, desde: str | None = None) -> li
             destino = (p.parent / str(d["reemplazado_por"])).resolve()
             if not destino.exists() and not por_nombre.get(pathlib.Path(str(d["reemplazado_por"])).stem):
                 hallar("error", "enlace-roto", p, f"`reemplazado_por: {d['reemplazado_por']}` no existe")
-        if p not in entradas and not _lista(d.get("fuentes")):
+        es_ruta = p.stem.startswith(("recorrido-", "ruta-")) or d.get("tipo") in TIPOS_ENTRADA
+        if p not in entradas and not es_ruta and not _lista(d.get("fuentes")):
             hallar("aviso", "sin-fuentes", p, "sin `fuentes`: ¿de dónde sale lo que afirma?")
         if d.get("resumen") and "adr" not in {x.lower() for x in p.parts}:
             primera = _primera_linea(n["cuerpo"])
