@@ -19,7 +19,7 @@ Cómo se estructura y se escribe una base está en [`metodo.md`](metodo.md): lee
 
 Antes de preguntar nada, averiguá solo todo lo que se puede averiguar. La persona no tiene que contarte lo que ya está escrito.
 
-1. **La base.** Si no la nombra: lo general va a `mtsdlf/conocimiento`, cómo emprendemos a `mtsdlf/fundar`, lo de un sistema a los docs de su repo, lo de una empresa a su repo (skill `tsc-organizacion`). Buscá el clon en `~/repos`; si no está, clonalo.
+1. **La base, por lo que es el contenido y no por dónde está la sesión.** Lo que la persona escribe en el pedido (una empresa, un repo, un producto) es contexto de uso: dice para quién es, no a dónde va. Un tema general va a la base de conocimiento de la organización (`mtsdlf/conocimiento`) aunque la sesión esté abierta en otro repo; lo de un sistema va a los docs de su repo, y lo de una empresa, a su repo. Si el `AGENTS.md` o el `CLAUDE.md` del repo tiene una sección de dónde va cada cosa, manda. Buscá el clon en `~/repos`; si no está, clonalo. Si la sesión está en otro repo, el destino va en el mensaje de alinear («lo escribo en `conocimiento/<Tema>/`»).
 2. **Las convenciones.** El `CONVENCIONES.md` de la base dice el dueño por defecto, la entrada raíz y lo propio de esa base. Manda sobre los ejemplos de `metodo.md`.
 3. **Para qué y para quién.** Salen de la conversación, de los repos que la persona nombró o en los que está trabajando (sus `AGENTS.md`, `CLAUDE.md`, README) y de las skills de la organización. Si menciona una empresa de la organización, el uso está en su repo: leelo.
 4. **Lo que ya existe.** Buscá el tema, sus sinónimos y su traducción en toda la base. Lo que existe se amplía, se reordena o se enlaza.
@@ -44,12 +44,12 @@ Con eso y con el contexto armá el **árbol** como dice "Capas" en `metodo.md`: 
 
 Mandale a la persona **un solo mensaje** con:
 
-- **lo que entendiste**, en tres o cuatro líneas: para qué es la base, para quién y qué nivel asumís, diciendo de dónde lo sacaste;
+- **lo que entendiste**, en tres o cuatro líneas: para qué es la base, para quién y qué nivel asumís, diciendo de dónde lo sacaste, y **dónde lo vas a escribir** (repo y carpeta);
 - **el árbol propuesto**, como un bloque con carpetas y notas, cada una con media línea;
 - **las preguntas que la base tiene que poder responder**, de tres a seis, con sus palabras y su caso: son la prueba del lector en frío;
 - **como mucho tres preguntas** sobre el tema, solo las que cambian el árbol y no se pueden deducir: qué queda afuera, qué vertical va más hondo, desde qué escuela se escribe si el campo tiene varias. Cada una con alternativas concretas y tu recomendación con su motivo.
 
-Nunca se pregunta por el dueño, la audiencia, la dedicación ni "la última vez que lo usaste" si el contexto lo dice o se puede suponer. Lo que supusiste va en el mensaje, marcado, para que lo corrija. Si la persona contesta corto o "dale", seguí con lo propuesto.
+Nunca se pregunta por el dueño, la audiencia, la dedicación ni "la última vez que lo usaste" si el contexto lo dice o se puede suponer, y nunca se repregunta lo que la persona puso en el pedido: si nombró una empresa o un uso, eso es el para qué y el para quién. Lo que supusiste va en el mensaje, marcado, para que lo corrija. Si la persona contesta corto o "dale", seguí con lo propuesto.
 
 Con la respuesta escribí `<Tema>/ALCANCE.md` desde [`plantillas/alcance.md`](plantillas/alcance.md). Terminás cuando la persona respondió y el árbol quedó corregido.
 
