@@ -41,7 +41,7 @@ MAPA = nota("mapa", resumen="Mapa de Reptiles.",
                    "- [Ectotermia](ectotermia.md) — la idea.\n- [Lagarto](lagarto.md) — un caso.\n")
 
 # Avisos que da cualquier tema recién escrito: borradores sin confirmar y un Mapa sin padre fuera del vault.
-DE_BORRADOR = {"pendiente-de-revision", "mapa-sin-padre"}
+DE_BORRADOR = {"pendiente-de-revision"}
 
 
 def tema(tmp_path, cambios: dict[str, str | None] | None = None):
@@ -257,3 +257,12 @@ def test_reemplazado_por_que_no_existe(tmp_path):
     vieja = nota(area="anatomia", titulo="Lagarto", resumen="Un lagarto es un reptil escamoso.",
                  extra="es_un: [reptil]\nreemplazado_por: nada\n").replace("estado: borrador", "estado: obsoleto")
     assert ("relacion-rota", "lagarto.md") in reglas(tema(tmp_path, {"lagarto.md": vieja}))
+
+
+def test_una_ruta_entre_backticks_que_ya_es_enlace_no_avisa(tmp_path):
+    t = tema(tmp_path, {"README.md": MAPA + "- [`reptil.md`](reptil.md) — la misma nota, con el nombre de archivo.\n"})
+    assert not any(h["regla"] == "ruta-sin-enlace" for h in revisar.revisar(t, HOY))
+
+
+def test_el_mapa_en_la_raiz_no_necesita_padre(tmp_path):
+    assert not any(h["regla"] == "mapa-sin-padre" for h in revisar.revisar(tema(tmp_path), HOY))
