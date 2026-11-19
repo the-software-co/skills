@@ -17,7 +17,7 @@ La primera corrida real de `ampliar` (Marketing, `mtsdlf/conocimiento#11`) produ
 - **Lo volátil abajo**: la regla de núcleo y periferia sale sola de las capas, sin listas de volátiles ni lint de nombres de productos.
 - **Alinear en un mensaje**: leer el contexto primero, proponer el árbol y hacer como mucho tres preguntas sobre el tema. Nada sobre la persona que el contexto ya diga.
 - **Títulos con las palabras del tema** y una sola plantilla de nota sin secciones fijas.
-- **Frontmatter de seis campos**; las relaciones son enlaces en el cuerpo, y la jerarquía la dan las carpetas.
+- **Frontmatter de seis campos obligatorios** (más `aliases`, `dueno` y `reemplazado_por` cuando hacen falta); las relaciones son enlaces en el cuerpo, y la jerarquía la dan las carpetas.
 - **Lint chico**: enlaces, campos, huérfanas, carpetas sin entrada, vencimientos, títulos de plantilla, largo y muletillas; más `fuente-cambiada` y `--desde` para los repos con código.
 
 ## Qué se conserva

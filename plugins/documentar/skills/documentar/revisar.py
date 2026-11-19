@@ -17,6 +17,7 @@ import pathlib
 import re
 import subprocess
 import sys
+import urllib.parse
 
 ESTADOS = {"borrador", "vigente", "obsoleto"}
 ESTABILIDADES = {"estable", "semi", "volatil"}
@@ -24,6 +25,8 @@ REVISION_DIAS = {"estable": 365, "semi": 180, "volatil": 90}
 OBLIGATORIOS = ("resumen", "estado", "estabilidad")
 PALABRAS_MAX = 1500
 NO_NOTAS = {"CONVENCIONES.md", "ALCANCE.md"}
+# Sin frontmatter, estos archivos son puertas: no son notas, pero sus enlaces cuentan.
+PUERTAS = {"README.md", "CONTEXT.md", "GLOSSARY.md", "GLOSARIO.md", "AGENTS.md", "CLAUDE.md"}
 RAICES = {"conocimiento", "indice", "index"}
 TIPOS_ENTRADA = {"mapa", "ruta", "recorrido"}  # bases anteriores
 NOMBRE = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
@@ -31,7 +34,8 @@ NOMBRE = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
 TITULOS_PLANTILLA = {
     "por qué existe", "cómo funciona", "no confundir con", "para profundizar", "relaciones", "ejemplo",
     "qué es", "notas", "alternativas", "qué hacer", "cómo se reconoce", "por qué pasa", "si algo falla",
-    "cómo saber que salió", "cuándo cada una", "debate abierto", "antes de empezar",
+    "cómo saber que salió", "cuándo cada una", "debate abierto", "antes de empezar", "las piezas",
+    "las notas de esta parte", "las notas", "por dónde entrar", "por dónde empezar", "sub-temas",
 }
 MULETILLAS = (
     "crucial", "robusto", "robusta", "cabe destacar", "cabe mencionar", "cabe señalar",
@@ -43,7 +47,7 @@ MULETILLAS = (
 )
 WIKILINK = re.compile(r"\[\[([^\]|#^]+)(?:[#^][^\]|]*)?(?:\|[^\]]*)?\]\]")
 MDLINK = re.compile(r"\]\(([^)\s#]+\.md)(?:#[^)]*)?\)")
-CODIGO = re.compile(r"```.*?```|`[^`\n]*`", re.S)
+CODIGO = re.compile(r"```.*?```|~~~.*?~~~|`[^`\n]*`", re.S)
 
 
 def frontmatter(texto: str) -> tuple[dict | None, str]:
@@ -138,7 +142,7 @@ def revisar(carpeta: pathlib.Path, hoy: dt.date, desde: str | None = None) -> li
     for p in _archivos(base, ignorar):
         texto = p.read_text()
         datos, cuerpo = frontmatter(texto)
-        if datos is None and p.name == "README.md":
+        if datos is None and p.name in PUERTAS:
             datos = {}  # una puerta: no es nota, pero sus enlaces cuentan
             puerta = True
         else:
@@ -149,9 +153,9 @@ def revisar(carpeta: pathlib.Path, hoy: dt.date, desde: str | None = None) -> li
     for p, n in notas.items():
         sin_codigo = CODIGO.sub("", n["cuerpo"])
         for destino in MDLINK.findall(sin_codigo):
-            if "://" in destino:
+            if "://" in destino or destino.startswith("/"):
                 continue
-            objetivo = (p.parent / destino).resolve()
+            objetivo = (p.parent / urllib.parse.unquote(destino)).resolve()
             if objetivo.exists():
                 n["enlaces"].add(objetivo)
             elif not any(objetivo.is_relative_to(i) for i in ignorar):
@@ -164,6 +168,7 @@ def revisar(carpeta: pathlib.Path, hoy: dt.date, desde: str | None = None) -> li
                 hallar("error", "enlace-roto", p, f"`[[{destino}]]` no existe")
 
     entradas = {p for p, n in notas.items() if not n["puerta"] and _es_entrada(p, n["datos"] or {}, base)}
+    con_entrada = {p.parent for p in entradas} | {p.parent for p, n in notas.items() if n["puerta"] and p.name == "README.md"}
     enlazadas_desde_entrada = {e for p in entradas | {p for p, n in notas.items() if n["puerta"]}
                                for e in notas[p]["enlaces"] if e != p}
     pendientes = 0
@@ -185,19 +190,31 @@ def revisar(carpeta: pathlib.Path, hoy: dt.date, desde: str | None = None) -> li
         if p.name != "README.md" and not NOMBRE.fullmatch(p.stem):
             hallar("error", "nombre-de-archivo", p, "el nombre va en kebab-case ASCII")
 
+        revisado = None
+        if d.get("revisado"):
+            try:
+                revisado = dt.date.fromisoformat(str(d["revisado"]))
+            except ValueError:
+                hallar("error", "valor-invalido", p, f"`revisado: {d['revisado']}`")
         if d.get("estado") == "borrador":
             pendientes += p.is_relative_to(carpeta)
         if d.get("estado") == "vigente":
             if not d.get("revisado"):
                 hallar("aviso", "vigente-sin-revisado", p, "vigente sin `revisado`: ¿quién la confirmó y cuándo?")
-            else:
-                try:
-                    revisado = dt.date.fromisoformat(str(d["revisado"]))
-                    dias = REVISION_DIAS.get(d.get("estabilidad"), 365)
-                    if (hoy - revisado).days > dias:
-                        hallar("aviso", "revision-vencida", p, f"revisada el {revisado}; vence a los {dias} días")
-                except ValueError:
-                    hallar("error", "valor-invalido", p, f"`revisado: {d['revisado']}`")
+            elif revisado:
+                dias = REVISION_DIAS.get(d.get("estabilidad"), 365)
+                if (hoy - revisado).days > dias:
+                    hallar("aviso", "revision-vencida", p, f"revisada el {revisado}; vence a los {dias} días")
+        if d.get("reemplazado_por"):
+            destino = (p.parent / str(d["reemplazado_por"])).resolve()
+            if not destino.exists() and not por_nombre.get(pathlib.Path(str(d["reemplazado_por"])).stem):
+                hallar("error", "enlace-roto", p, f"`reemplazado_por: {d['reemplazado_por']}` no existe")
+        if p not in entradas and not _lista(d.get("fuentes")):
+            hallar("aviso", "sin-fuentes", p, "sin `fuentes`: ¿de dónde sale lo que afirma?")
+        if d.get("resumen") and "adr" not in {x.lower() for x in p.parts}:
+            primera = _primera_linea(n["cuerpo"])
+            if primera and _normal(primera) != _normal(str(d["resumen"])):
+                hallar("aviso", "resumen-distinto", p, "la primera línea no es igual al `resumen`")
 
         es_raiz = p.parent == base and p in entradas
         if d.get("estado") != "obsoleto" and not es_raiz and p not in enlazadas_desde_entrada:
@@ -219,7 +236,7 @@ def revisar(carpeta: pathlib.Path, hoy: dt.date, desde: str | None = None) -> li
 
     carpetas = {p.parent for p, n in notas.items() if not n["puerta"] and n["datos"] is not None}
     for c in sorted(carpetas):
-        if c != base and not any(e.parent == c for e in entradas):
+        if c != base and c not in con_entrada:
             hallar("aviso", "carpeta-sin-entrada", c, f"falta `{c.name.lower()}.md` con lo que hay adentro")
 
     if pendientes:
@@ -273,9 +290,20 @@ def _ultimo_commit(carpeta: pathlib.Path, fuente: str) -> str | None:
     top = _top(carpeta)
     if not top or not ruta or not (top / ruta).exists():
         return None
-    fecha = subprocess.run(["git", "-C", str(top), "log", "-1", "--format=%cs", "--", ruta],
+    fecha = subprocess.run(["git", "-C", str(top), "log", "-1", "--format=%as", "--", ruta],
                            capture_output=True, text=True).stdout.strip()
     return fecha or None
+
+
+def _primera_linea(cuerpo: str) -> str:
+    """El primer párrafo después del H1."""
+    tras_h1 = re.split(r"^# .*$", cuerpo, maxsplit=1, flags=re.M)[-1]
+    return next((x for x in re.split(r"\n\s*\n", tras_h1.strip()) if x.strip()), "")
+
+
+def _normal(texto: str) -> str:
+    """Sin espacios repetidos ni marcas de énfasis, para comparar `resumen` con la primera línea."""
+    return re.sub(r"\s+", " ", re.sub(r"[*_`]", "", texto)).strip()
 
 
 def main() -> int:

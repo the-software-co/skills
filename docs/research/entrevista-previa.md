@@ -1,5 +1,7 @@
 # Entrevista previa a documentar un tema
 
+> Historia de la versión 0.3. Lo vigente desde la 0.4.0 está en [capas.md](capas.md).
+
 Research para el paso de entrevista de la skill `documentar`. Fecha: 2026-11-11. Lo resume y lo enlaza [`skill-documentar.md`](skill-documentar.md).
 
 ## TL;DR

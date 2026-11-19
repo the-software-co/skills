@@ -21,7 +21,7 @@ Antes de preguntar nada, averiguá solo todo lo que se puede averiguar. La perso
 
 1. **La base.** Si no la nombra: lo general va a `mtsdlf/conocimiento`, cómo emprendemos a `mtsdlf/fundar`, lo de un sistema a los docs de su repo, lo de una empresa a su repo (skill `tsc-organizacion`). Buscá el clon en `~/repos`; si no está, clonalo.
 2. **Las convenciones.** El `CONVENCIONES.md` de la base dice el dueño por defecto, la entrada raíz y lo propio de esa base. Manda sobre los ejemplos de `metodo.md`.
-3. **Para qué y para quién.** Salen de la conversación, de los repos que la persona nombró o en los que está trabajando (sus `AGENTS.md`, `CLAUDE.md`, README) y de las skills de la organización. Si menciona Lind o TSC, el uso está en esos repos: leelos.
+3. **Para qué y para quién.** Salen de la conversación, de los repos que la persona nombró o en los que está trabajando (sus `AGENTS.md`, `CLAUDE.md`, README) y de las skills de la organización. Si menciona una empresa de la organización, el uso está en su repo: leelo.
 4. **Lo que ya existe.** Buscá el tema, sus sinónimos y su traducción en toda la base. Lo que existe se amplía, se reordena o se enlaza.
 
 Trabajás en una rama (`tema/<tema>`, `docs/<asunto>`) y entregás un PR en el repo de la base.
@@ -36,6 +36,8 @@ Un subagente hace un vistazo al tema (hasta cinco búsquedas) y trae:
 - las escuelas o enfoques que compiten, si hay, con una línea cada uno;
 - dónde se produce el conocimiento confiable del campo (ver [`investigacion.md`](investigacion.md)).
 
+Si la persona adjuntó o nombró material propio (notas, apuntes, libros, docs de trabajo), otro subagente lo escanea en paralelo: qué partes del tema cubre, su vocabulario, su contexto concreto y dónde contradice a las fuentes.
+
 Con eso y con el contexto armá el **árbol** como dice "Capas" en `metodo.md`: el todo, las verticales, los componentes de cada una y lo que va a la capa operativa o a `Fundamentos/`.
 
 ### 2. Alinear: un solo mensaje
@@ -44,6 +46,7 @@ Mandale a la persona **un solo mensaje** con:
 
 - **lo que entendiste**, en tres o cuatro líneas: para qué es la base, para quién y qué nivel asumís, diciendo de dónde lo sacaste;
 - **el árbol propuesto**, como un bloque con carpetas y notas, cada una con media línea;
+- **las preguntas que la base tiene que poder responder**, de tres a seis, con sus palabras y su caso: son la prueba del lector en frío;
 - **como mucho tres preguntas** sobre el tema, solo las que cambian el árbol y no se pueden deducir: qué queda afuera, qué vertical va más hondo, desde qué escuela se escribe si el campo tiene varias. Cada una con alternativas concretas y tu recomendación con su motivo.
 
 Nunca se pregunta por el dueño, la audiencia, la dedicación ni "la última vez que lo usaste" si el contexto lo dice o se puede suponer. Lo que supusiste va en el mensaje, marcado, para que lo corrija. Si la persona contesta corto o "dale", seguí con lo propuesto.
@@ -76,15 +79,15 @@ Leé el `ALCANCE.md` y la entrada del tema. Proponé dónde entra lo nuevo en el
 
 1. **Auditar**: corré `revisar.py` y leé todo. Armá el árbol que el tema debería tener según "Capas" y, para cada nota vieja, decí a dónde va: queda, se mueve, se fusiona con otra, se parte, se baja a la capa operativa o se borra (relleno, restos de un chat).
 2. **Proponer**: el árbol nuevo con el origen de cada nota, en un solo mensaje. Sumá solo las preguntas que la persona puede responder (de dónde salió un material, si algo es de un empleador). Esperá el sí.
-3. **Reestructurar**: mové con `git mv`, reescribí los títulos de sección que vienen de una plantilla vieja, actualizá en toda la base (y en los repos que la enlazan) los enlaces a rutas viejas, y borrá lo que quedó vacío.
+3. **Reestructurar**: mové con `git mv` (los originales que se reemplazan enteros van a `Archivo/`, si `CONVENCIONES.md` lo pide), reescribí los títulos de sección que vienen de una plantilla vieja, actualizá en toda la base (y en los repos que la enlazan) los enlaces a rutas viejas, y borrá lo que quedó vacío.
 4. **Verificar** como dice "Verificar". Contale a la persona cuántas notas había, cuántas quedaron y qué se borró.
 
 ## `volcar`
 
 1. **Ubicar** en el árbol: ¿qué vertical? ¿es un componente nuevo, amplía uno que está, o ya está explicado? Si no entra en ninguna vertical, puede ser una vertical que falta o un tema nuevo.
 2. **Proponer** en una línea: dónde va, qué nota crea o amplía, y qué vas a verificar si trae un dato. Si la ubicación es obvia, escribí directo y decilo al entregar.
-3. **Escribir** desde la plantilla, enlazar desde la entrada de su vertical y verificar.
-4. **Devolver** la ruta de la nota.
+3. **Escribir** desde la plantilla, enlazar desde la entrada de su vertical y verificar. Si trae texto pegado de otra IA o de un chat, se queda solo el contenido y se verifica como cualquier material.
+4. **Devolver** la ruta de la nota, y registrarla donde diga `CONVENCIONES.md`, si dice algo.
 
 ## `mantener`
 
@@ -99,7 +102,7 @@ Leé el `ALCANCE.md` y la entrada del tema. Proponé dónde entra lo nuevo en el
 1. **Prosa**: una pasada con la skill `humanizer` si está; si no, con "Prosa" de `metodo.md`. Guardá una copia antes y después compará los números, las URLs y los enlaces de cada nota contra la copia: tienen que ser los mismos.
 2. **Lint**: 0 errores. Los avisos se arreglan o se justifican en el PR.
 3. **Cotejo con fuentes**: un subagente por vertical recibe sus notas y sus fuentes (los informes de `.investigacion/`, el código, la página) y devuelve cada afirmación que la fuente no sostiene. Si ninguna fuente dice el porqué de algo, no se deduce: la nota dice que no quedó registrado.
-4. **Lector en frío**: un subagente sin este contexto recibe solo la ruta de la entrada del tema y cinco o seis preguntas que la base tiene que responder (las escribe quien escribe, desde el `ALCANCE.md`). Navega por los enlaces, responde citando archivo y párrafo, y lista los términos sin definir y los enlaces que faltan. Quien escribe juzga las respuestas, corrige y repite solo lo que falló.
+4. **Lector en frío**: un subagente sin este contexto recibe solo la ruta de la entrada del tema y las preguntas del `ALCANCE.md` (sin `ALCANCE.md`, quien escribe redacta tres por nota). Navega por los enlaces, responde citando archivo y párrafo, y lista los términos sin definir y los enlaces que faltan. Quien escribe juzga las respuestas, corrige y repite solo lo que falló.
 
 Terminás cuando la prosa no perdió nada, el lint da 0 errores, el cotejo no deja afirmaciones sin sostén y el lector responde todo con una cita válida.
 

@@ -11,13 +11,13 @@ Un tema se documenta como se analiza un sistema: se lo descompone en capas de ab
 | **El todo** | Qué es el sujeto, qué problema resuelve, dónde termina y, sobre todo, cuáles son sus partes y cómo se conectan entre sí | La entrada del tema, `<Tema>/<tema>.md` | casi nunca |
 | **Las verticales** | Las grandes partes en que el sujeto se divide | Una carpeta cada una, con su entrada `<Vertical>/<vertical>.md` | poco |
 | **Los componentes** | Las piezas de cada vertical: conceptos, mecanismos, prácticas, decisiones | Una nota cada uno, dentro de su vertical | a veces |
-| **Lo operativo** | Herramientas, plataformas, valores, cifras, comandos | Fichas fechadas, abajo de lo que implementan | seguido |
+| **Lo operativo** | Herramientas, plataformas, valores, cifras, comandos | Fichas fechadas en la carpeta de su vertical, enlazadas desde el componente que implementan | seguido |
 
 Reglas para armar el árbol:
 
 - **Las verticales son partes del sujeto, no temas de conversación.** Responden "¿de qué está hecho?" o "¿en qué etapas o subsistemas se divide?". Kubernetes se divide en plano de control, nodos, cargas de trabajo, red, almacenamiento y seguridad; un gecko leopardo, en biología, recinto, alimentación, salud, reproducción y conducta; el marketing, en mercado y cliente, propuesta, marca, canales, comunicación y medición. "Debates", "B2B" o "Escuelas" no son partes: son cortes transversales.
 - **Usá la división del propio dominio.** Si el campo ya se clasifica a sí mismo (la filogenia, los objetos de una API, el índice canónico de un libro de texto), las verticales la siguen.
-- **De cuatro a ocho verticales.** Con menos, el todo no está descompuesto; con más, mezclaste niveles.
+- **De cuatro a ocho verticales en un tema general.** Con menos, el todo no está descompuesto; con más, mezclaste niveles. Un sistema tiene las que tiene.
 - **La profundidad la pone el sujeto.** Una vertical tiene subcarpetas solo si sus componentes tienen partes propias que se estudian por separado. No hay un número fijo de niveles, y dos verticales pueden tener profundidades distintas.
 - **Lo transversal va a `Fundamentos/`**: historia, escuelas, fuentes y glosario del tema. No es una vertical, porque no es una parte del sujeto.
 - **Cada cosa en un solo lugar.** Una nota vive en la vertical de la que es parte y se enlaza desde las otras. Si una nota parece de dos verticales, o es un concepto de arriba (va al todo) o el árbol está mal cortado.
@@ -38,7 +38,7 @@ Una nota contesta las que tienen contenido. La entrada de una vertical tiene que
 
 - **Una nota, un sujeto.** Cada nota trata una cosa (un componente, una vertical, el todo) y la explica entera. Se parte cuando adentro hay un sujeto que se va a enlazar desde otros lados; no se parte por tamaño.
 - **Tamaño**: lo que pida el sujeto. Una nota de 1200 palabras sobre una vertical está bien; una de 120 sobre un concepto que nadie va a enlazar se suma a su vecina. El lint avisa arriba de 1500.
-- **Primera línea**: después del H1, una definición de una o dos oraciones que se entiende sola, igual al `resumen`.
+- **Primera línea**: después del H1, una definición de una o dos oraciones que se entiende sola, igual al `resumen` (el lint lo avisa). En un ADR que ya existía no hace falta.
 - **Títulos de sección**: dicen lo que dice la sección, con las palabras del tema. "Los cinco componentes", "Por qué crece por penetración", "Dónde choca con Sharp". Nunca títulos de formulario como "Por qué existe", "Cómo funciona", "No confundir con", "Para profundizar" o "Relaciones". Si un título serviría en cualquier otra nota, está mal.
 - **Título de la nota**: el término que la gente usa, en singular. Si lo corriente es en inglés, va en inglés ("Churn"); el otro idioma va en `aliases`.
 - **Archivo**: kebab-case ASCII. Las carpetas, con mayúscula inicial y guiones (`Mercado-y-cliente/`). La entrada de una carpeta se llama como ella en minúscula (`Mercado-y-cliente/mercado-y-cliente.md`), salvo en los docs de un repo, donde es `README.md`.
@@ -63,6 +63,7 @@ estabilidad: estable # estable | semi | volatil
 fuentes: []          # URLs, libros con capítulo, rutas de código
 aliases: []          # opcional: sinónimos, siglas, el término en otro idioma
 dueno:               # opcional: solo si no es el de CONVENCIONES.md
+reemplazado_por:     # opcional: la ruta de la nota nueva, si está obsoleto
 creado: 2026-11-19
 revisado:            # cuando una persona la confirmó; vacío en borrador
 ---
@@ -86,14 +87,16 @@ Cómo se buscan está en [`investigacion.md`](investigacion.md). En la nota:
 - Lo que no se leyó entero se dice ("según su resumen"). La inferencia propia se dice como inferencia.
 - Lo que no tiene fuente se omite o queda visible: `> [!NOTE] Sin fuente todavía: <qué falta>.`
 - Un libro o un curso no tiene nota propia: sus ideas se reparten en los componentes y el libro va en `fuentes`. La bibliografía del tema va en `Fundamentos/`.
+- **Material de la persona**: lo que ya hace o escribió se contrasta con las fuentes en una sección propia al final de la nota ("En <lugar>"), para que la nota siga sirviendo a otro lector.
+- **Texto de otra IA o de un chat**: se queda solo el contenido; las preguntas del asistente y los enlaces que no se pueden verificar se borran, y el resto se verifica como cualquier material.
 - El material de un empleador se queda en sus herramientas; a la base va solo el concepto general. Los secretos nunca.
 
 ## Obsoleto y disputado
 
 - **Disputado**: cada posición con su evidencia, bajo `> [!IMPORTANT]`. Si el debate es central a una vertical, tiene su propia nota dentro de esa vertical (no en una carpeta de debates).
 - **Una afirmación que cambió** no se reescribe en silencio si importa como historia: `> [!WARNING] Obsoleto desde 2026-11: <qué cambió y dónde está lo vigente>.`
-- **Una nota que ya no sirve** pasa a `obsoleto` y se borra cuando nada la enlaza.
-- **Una decisión tomada** (en los docs de un repo, un ADR) no se reescribe: se escribe otra y la vieja queda `obsoleto`.
+- **Una nota que ya no sirve** pasa a `obsoleto`, con `reemplazado_por` si hay otra, y se borra cuando nada la enlaza.
+- **Una decisión** se escribe con la plantilla de nota, en este orden: el contexto, las alternativas con su evidencia, lo que se eligió (o que está abierta) y sus consecuencias. En los docs de un repo es un ADR. Una decisión tomada no se reescribe: se escribe otra y la vieja queda `obsoleto` con `reemplazado_por`. Si ninguna fuente registra el porqué, la nota lo dice.
 
 ## Frescura
 

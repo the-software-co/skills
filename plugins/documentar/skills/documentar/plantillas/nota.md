@@ -13,7 +13,7 @@ revisado:
 
 <La misma definición de `resumen`.>
 
-<El cuerpo, en secciones cuyo título dice lo que dice cada una, con las palabras del tema. Lo que suele hacer falta, sin este orden fijo y solo si tiene contenido: qué problema resuelve, cómo funciona, un caso concreto, de qué está hecho (enlaza abajo), cómo se conecta con sus vecinos (enlaza a los lados), cómo se hace o se decide, cómo falla o con qué se confunde.>
+<El cuerpo, en secciones cuyo título dice lo que dice cada una, con las palabras del tema ("Por qué la escama se renueva", no "Cómo funciona"). Lo que suele hacer falta, como contenido y no como títulos, sin orden fijo y solo si tiene contenido: qué problema resuelve, cómo funciona, un caso concreto, de qué está hecho (enlaza abajo), cómo se conecta con sus vecinos (enlaza a los lados), cómo se hace o se decide, cómo falla o con qué se confunde.>
 
 <Si la explicación canónica está afuera: qué recurso leer, qué parte y en qué fijarse, dentro de la sección donde viene a cuento.>
 

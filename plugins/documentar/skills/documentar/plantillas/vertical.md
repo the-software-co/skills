@@ -18,6 +18,7 @@ revisado:
 
 <Lo que hay que saber de la vertical sin abrir sus componentes: el mecanismo, las decisiones que se toman acá, cómo falla. Tantas secciones como haga falta, cada una con un título que diga lo que dice.>
 
-## <Lo que hay adentro, p. ej. "Las piezas">
+## <Lo que hay adentro, con las palabras del tema, p. ej. "Qué hay adentro del plano de control">
 
 - [<Componente>](<componente>.md) — <qué es y cuándo leerlo>.
+- [<Ficha>](<ficha>.md) — <qué dato trae, de cuándo>.

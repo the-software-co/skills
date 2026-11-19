@@ -1,5 +1,7 @@
 # Una skill que documenta cualquier tema: qué dicen los libros, la Academia y el mercado
 
+> Historia de la versión 0.3. Lo vigente desde la 0.4.0 está en [capas.md](capas.md).
+
 Research para alinear la definición de una skill que, dado un tema ("Excel", "Kubernetes", "lagartos"), produce una base de conocimiento en Markdown en git. Los requisitos son cuatro: que esté estructurada, que no quede obsoleta rápido, que sea de alto nivel pero cubra el tema entero por subcategorías, y que se pueda recorrer concepto a concepto por enlaces. Todavía no es un diseño. Fecha: 2026-11-11.
 
 Va aparte de la skill `conocimiento` de este repo, a propósito. Se investigó sin partir de ella, y solo al final se compara (ver "Qué cambia respecto de `conocimiento`").

@@ -27,6 +27,6 @@ flowchart LR
 
 <Secciones con título propio para las ideas que cruzan todo el tema, si hay: las dos o tres que cambian cómo se lo ve, o un desacuerdo de fondo entre escuelas.>
 
-## <Por dónde empezar, si es para aprender: el orden de lectura>
+## <Si es para aprender, el orden de lectura, con un título del tema, p. ej. "De la célula al organismo">
 
 - [Fundamentos](Fundamentos/fundamentos.md) — <historia, escuelas, fuentes, glosario>.

@@ -161,3 +161,26 @@ def test_fuente_cambiada_y_desde(tmp_path):
     git("commit", "-qam", "b")
     r = reglas(raiz, desde="main")
     assert ("fuente-cambiada", "cobro.md") in r and ("doc-sin-actualizar", "cobro.md") in r
+
+
+def test_un_readme_sin_frontmatter_en_una_subcarpeta_es_su_entrada(tmp_path):
+    arbol = {
+        "indice.md": nota("El índice.", "- [Pagos](Pagos/README.md)", titulo="Índice"),
+        "Pagos/README.md": "# Pagos\n\n- [Cobro](cobro.md)\n",
+        "Pagos/cobro.md": nota("El cobro.", "~~~\n[x](no-existe.md)\n~~~\n", titulo="Cobro"),
+        "Pagos/CONTEXT.md": "# Glosario del dominio\n",
+    }
+    assert reglas(base(tmp_path, arbol)) == []
+
+
+def test_resumen_distinto_sin_fuentes_y_reemplazo_roto(tmp_path):
+    arbol = dict(ARBOL)
+    arbol["Reptiles/Biologia/escama.md"] = nota("La escama.", titulo="Escama").replace(
+        "\n\nLa escama.\n", "\n\nOtra cosa.\n").replace("fuentes: [https://example.org]", "fuentes: []")
+    arbol["Reptiles/Biologia/biologia.md"] = nota("El cuerpo.", "- [Escama](escama.md)", estado="obsoleto",
+                                                  extra="reemplazado_por: cuerpo.md\n", titulo="Biología")
+    assert reglas(base(tmp_path, arbol)) == [
+        ("enlace-roto", "Reptiles/Biologia/biologia.md"),
+        ("resumen-distinto", "Reptiles/Biologia/escama.md"),
+        ("sin-fuentes", "Reptiles/Biologia/escama.md"),
+    ]

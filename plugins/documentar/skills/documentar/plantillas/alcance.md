@@ -5,6 +5,7 @@ nivel: <qué se da por sabido>
 escuela:            # la elegida; vacío si es neutral o el campo no tiene
 fuera: []           # lo vecino que no entra, y dónde vive si está en otra base
 fuentes: []         # material de la persona y lo pago o interno a lo que ella llega
+preguntas: []       # de 3 a 6 que la base tiene que poder responder; las usa el lector en frío
 aprobado:           # fecha en que la persona respondió el mensaje de alineación
 ---
 
@@ -19,6 +20,7 @@ aprobado:           # fecha en que la persona respondió el mensaje de alineaci�
   <tema>.md            el todo
   <Vertical>/          <media línea>
     <componente>       <media línea>
+    <ficha>            <lo operativo: herramientas, valores; fechado>
   Fundamentos/         <si lleva>
 ```
 
