@@ -1,34 +1,19 @@
 ---
-tipo: ficha
-area: ecosistema
 resumen: >-
   <Qué dato, tabla o lista exacta trae esta ficha.>
-estabilidad: volatil
 estado: borrador
-dueno:                    # el que dice CONVENCIONES.md
-responde: []
-es_un: []
-parte_de: []
-instancia_de: []
-requiere: []
-relacionado: []
+estabilidad: volatil
 fuentes: []
-aliases: []
 creado:
 revisado:
-autoria: ia
 ---
 
 # <Nombre de la ficha>
 
-<La misma oración de `resumen`.>
+<La misma oración de `resumen`. Qué componente implementa: [<componente>](<componente>.md).>
 
-<La fuente viva, enlazada. Si se copian valores, la fecha de la copia: "Copiado de <fuente> el AAAA-MM-DD".>
+<La fuente viva, enlazada. Si se copian valores, la fecha: "Copiado de <fuente> el AAAA-MM-DD".>
 
 | <columna> | <columna> |
 |---|---|
 | <…> | <…> |
-
-## Relaciones
-
-- Relacionado: [<concepto>](<concepto>.md) — implementa ese concepto; va también en `relacionado`.
