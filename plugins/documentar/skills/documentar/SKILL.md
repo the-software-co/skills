@@ -5,7 +5,7 @@ description: Arma y mantiene bases de conocimiento en Markdown en git (un tema g
 
 # Documentar
 
-Cómo se estructura y se escribe una base está en [`metodo.md`](metodo.md): leelo antes de cualquier modo. Si la base son los docs de un repo con código, sumá [`sistemas.md`](sistemas.md). Las plantillas están en [`plantillas/`](plantillas/) y el lint es `python3 <carpeta de esta skill>/revisar.py <carpeta>`.
+Cómo se estructura y se escribe una base está en [`metodo.md`](metodo.md): leelo antes de cualquier modo. Si la base son los docs de un repo con código, sumá [`sistemas.md`](sistemas.md). Las plantillas están en [`plantillas/`](plantillas/) y el lint es `python3 <carpeta de esta skill>/revisar.py <carpeta>`. Si la base documenta cómo trabaja una organización (procesos, runbooks), mirá "Procesos y runbooks" en `metodo.md`.
 
 | Pide | Modo |
 |---|---|

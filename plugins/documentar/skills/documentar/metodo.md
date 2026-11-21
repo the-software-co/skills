@@ -73,6 +73,15 @@ revisado:            # cuando una persona la confirmó; vacío en borrador
 - Lo que escribe un agente entra como `borrador` y pasa a `vigente`, con `revisado` de ese día, cuando una persona lo lee y lo confirma. Nunca se marca `vigente` sin esa confirmación.
 - Las notas de bases anteriores pueden traer más campos (`tipo`, `area`, `parte_de`, `requiere`…). Se dejan; al tocar la nota, se pueden borrar.
 
+## Procesos y runbooks
+
+Cuando la base documenta cómo trabaja una organización, dos formas se suman a la nota y la ficha:
+
+- **Proceso** ([`plantillas/proceso.md`](plantillas/proceso.md)): una forma de trabajar que cruza personas o equipos, con disparador, quién hace, quién decide y quién se entera, los pasos y las excepciones. Lleva `dueno`, porque alguien tiene que mantenerlo vivo.
+- **Runbook** ([`plantillas/runbook.md`](plantillas/runbook.md)): una tarea operativa que se repite, con los comandos exactos, qué tiene que dar cada paso, cómo se comprueba, lo que suele fallar y cómo se deshace. Es `volatil`: los comandos cambian.
+
+Los títulos siguen diciendo lo que dice la sección con las palabras del proceso, pero las piezas no se omiten: un proceso sin quién decide o un runbook sin comprobación no sirven. La prueba es el lector en frío: alguien que nunca lo hizo lo sigue sin preguntar. Las dos plantillas se adaptaron de las skills `process-doc` y `runbook` de [anthropics/knowledge-work-plugins](https://github.com/anthropics/knowledge-work-plugins) (Apache 2.0).
+
 ## Lo volátil y las fichas
 
 Una **ficha** (`estabilidad: volatil`) guarda lo que cambia: una tabla de herramientas, los valores de referencia, una plataforma, un comando. Lleva la fecha de la copia y la fuente viva, y enlaza al componente que implementa: si la herramienta muere, el componente queda. Idealmente es un enlace comentado a la fuente, no una copia.
