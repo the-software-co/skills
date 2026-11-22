@@ -14,6 +14,7 @@ Cómo se estructura y se escribe una base está en [`metodo.md`](metodo.md): lee
 | ordenar o mejorar documentación que ya existe | `existente` |
 | guardar un concepto suelto o algo que aprendió | `volcar` |
 | ver qué está viejo, roto o huérfano | `mantener` |
+| leer o contestar desde la base, o usarla en una tarea | skill [`consultar`](../consultar/SKILL.md) |
 
 ## Antes de cualquier modo: leer el contexto
 
@@ -102,7 +103,7 @@ Leé el `ALCANCE.md` y la entrada del tema. Proponé dónde entra lo nuevo en el
 1. **Prosa**: una pasada con la skill `humanizer` si está; si no, con "Prosa" de `metodo.md`. Guardá una copia antes y después compará los números, las URLs y los enlaces de cada nota contra la copia: tienen que ser los mismos.
 2. **Lint**: 0 errores. Los avisos se arreglan o se justifican en el PR.
 3. **Cotejo con fuentes**: un subagente por vertical recibe sus notas y sus fuentes (los informes de `.investigacion/`, el código, la página) y devuelve cada afirmación que la fuente no sostiene. Si ninguna fuente dice el porqué de algo, no se deduce: la nota dice que no quedó registrado.
-4. **Lector en frío**: un subagente sin este contexto recibe solo la ruta de la entrada del tema y las preguntas del `ALCANCE.md` (sin `ALCANCE.md`, quien escribe redacta tres por nota). Navega por los enlaces, responde citando archivo y párrafo, y lista los términos sin definir y los enlaces que faltan. Quien escribe juzga las respuestas, corrige y repite solo lo que falló.
+4. **Lector en frío**: un subagente sin este contexto recibe solo la ruta de la entrada del tema y las preguntas del `ALCANCE.md` (sin `ALCANCE.md`, quien escribe redacta tres por nota). Navega por los enlaces como dice la skill `consultar`, responde citando archivo y párrafo, y lista los términos sin definir y los enlaces que faltan. Si el tema se usa para trabajar, recibe también una pregunta con forma de tarea («tengo que armar una propuesta comercial, ¿qué me sirve de acá?») y tiene que llegar a las notas correctas desde la entrada del tema. Quien escribe juzga las respuestas, corrige y repite solo lo que falló.
 
 Terminás cuando la prosa no perdió nada, el lint da 0 errores, el cotejo no deja afirmaciones sin sostén y el lector responde todo con una cita válida.
 
