@@ -96,6 +96,16 @@ Guardá cada informe, entero, en `<Tema>/.investigacion/<ángulo>.md`. Esa carpe
 
 Terminás cuando cada componente del árbol tiene al menos una fuente primaria o un hueco declarado, y cada afirmación de alto riesgo cumple la regla de "Fuentes" de `metodo.md`.
 
-## Costo
+## Costo y modelos
 
 Un tema de seis verticales lanza unos 14 subagentes: uno de vistazo, siete para investigar (seis verticales y la posición contraria), cuatro o cinco para escribir y el cotejo y el lector en frío. Decíselo a la persona en el mensaje de alineación si el tema es grande. Para bajarlo, se juntan verticales chicas.
+
+Cada paso pide un modelo distinto, y lo que más pesa en el costo es cuántas veces se repite un paso:
+
+| Paso | Modelo |
+|---|---|
+| Vistazo, investigar, cotejo con fuentes, pasada de prosa y lector en frío | uno económico (hoy Sonnet): buscan, leen y comparan, y se lanzan de a varios |
+| Escribir la entrada del tema y las notas | el de uso general de la sesión (hoy Opus) |
+| Una pasada única donde un error se paga caro: la revisión de coherencia del tema entero al juntar lo que escribieron varios, sintetizar un libro entero contra notas que ya existen | el más capaz (hoy Fable), salvo que la persona haya pedido bajar el costo |
+
+El más capaz nunca va en lo que se repite: duplica el costo y no busca ni coteja mejor. La calidad de un tema la limitan las fuentes que se pudieron leer, y un modelo más capaz no lee un libro que no se consiguió.
