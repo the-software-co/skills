@@ -122,6 +122,10 @@ Re-verificar es leer la nota contra sus fuentes y actualizar `revisado`.
 
 Si la base es para aprender, la entrada del tema lleva un orden de lectura: de arriba hacia abajo, y dentro de cada vertical, lo que hay que entender antes primero. Si hace falta más (ejercicios, práctica), va una nota `Fundamentos/ruta-de-<tema>.md` con pasos: el modelo mental, una predicción antes de ver la respuesta, un ejemplo resuelto, un caso modificado y uno para hacer solo, con las respuestas en `<details>`.
 
+## Para qué tarea
+
+La entrada de un tema que se usa para trabajar (marketing, producto, diseño, negocio) lleva una sección de tareas, con un título propio del tema («Qué leer según lo que estés haciendo»). Cada línea es una tarea genérica en voseo que apunta a sus notas: «Si tenés que poner un precio: [monetización](Monetizacion/monetizacion.md), [disposición a pagar](…)». Las tareas no nombran empresas, para que la base siga sirviendo a cualquiera; lo propio de cada empresa va en su repo, que enlaza a esta sección. Si una tarea no tiene nota, se dice cuál es lo más cercano: así el hueco queda a la vista. Es lo que lee primero quien consulta la base para un trabajo (skill `consultar`), y envejece más rápido que los conceptos: la entrada que la tiene va con `estabilidad: semi`.
+
 ## Visuales
 
 La entrada del tema lleva un diagrama Mermaid del todo: las verticales y cómo se conectan, con un verbo en cada flecha. Fuera de eso, un diagrama entra si muestra un mecanismo o un flujo que el texto solo no deja ver. Lo categórico va en una tabla.
