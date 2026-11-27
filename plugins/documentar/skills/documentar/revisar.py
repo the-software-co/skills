@@ -291,7 +291,13 @@ def _ultimo_commit(carpeta: pathlib.Path, fuente: str) -> str | None:
         return None
     ruta = re.split(r"[:#]", fuente.strip(), maxsplit=1)[0]
     top = _top(carpeta)
-    if not top or not ruta or not (top / ruta).exists():
+    if not top or not ruta:
+        return None
+    try:
+        existe = (top / ruta).exists()
+    except OSError:  # una cita larga en texto no es una ruta (ENAMETOOLONG)
+        return None
+    if not existe:
         return None
     fecha = subprocess.run(["git", "-C", str(top), "log", "-1", "--format=%as", "--", ruta],
                            capture_output=True, text=True).stdout.strip()
